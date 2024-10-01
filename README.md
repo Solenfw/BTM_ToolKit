@@ -1,4 +1,5 @@
 # Source Code Structure
+```bash
 project_name/
 │
 ├── .git/                    # Git version control directory (if using Git)
@@ -36,3 +37,4 @@ project_name/
 ├── LICENSE                  # License file for open source projects
 ├── tox.ini                  # Configuration for testing environments (if using tox)
 └── setup.cfg                # Optional setup configuration
+```
