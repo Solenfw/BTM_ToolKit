@@ -4,135 +4,137 @@ import sys
 import pandas as pd
 
 os.system("")
+class Color:
+    CYAN = '\033[1;96m'
+    YELLOW = '\033[1;33m'
+    MAGENTA = '\033[1;35m'
+    RED = '\033[1;31m'
+    END = '\033[0m'
+    
+    @staticmethod
+    def wrap_text(text, color):
+        return f"{color}{text}{Color.END}"
 
-CYAN = '\033[1;96m'
-YELLOW = '\033[1;33m'
-MAGENTA = '\033[1;35m'
-END = '\033[0m'
 
-# data source
-source_file = r"../../data/DMSP KLS MARTIN.xlsx"
-
-sheet_dict = {}
-
-def file_process(file_path: object) -> object:
+def file_process(file_path: str) -> dict:
+    """Processes the Excel file and returns a dictionary of product descriptions and their details."""
+    sheet_dict = {}
     data_raw = pd.read_excel(file_path)
     data_raw['col_a_value'] = data_raw.iloc[:, 0].astype(str).str.strip().str.lower()  # Column A
     data_raw['col_b_value'] = data_raw.iloc[:, 1].astype(str).str.strip().str.lower()  # Column B
     data_raw['col_c_value'] = data_raw.iloc[:, 2].astype(str).str.strip().str.lower()  # Column C
 
     unique_counter = 0
-    for row in data_raw.iloc[:].itertuples(index=False):
-        col_a_value = row.col_a_value  
-        col_b_value = row.col_b_value  
-        col_c_value = row.col_c_value  
+    for row in data_raw.itertuples(index=False):
+        code = row.col_a_value
+        eng_descript = row.col_b_value
+        vn_descript = row.col_c_value
 
-        if col_c_value in sheet_dict:
-            sheet_dict[f"{unique_counter}-{col_c_value}"] = [col_b_value, col_a_value]
-            unique_counter += 1
-        else:
-            sheet_dict[col_c_value] = [col_b_value, col_a_value]
+        key = vn_descript if vn_descript not in sheet_dict else f"{unique_counter}-{vn_descript}"
+        sheet_dict[key] = [eng_descript, code]
+        unique_counter += 1 if vn_descript in sheet_dict else 0
+
+    return sheet_dict
 
 
-
-def display(product : str, stats : list):
-    descript = re.sub(r'(\d+)', r'\033[1;35m\1\033[0m', product)
-    eng_descript = re.sub(r'(\d+)', r'\033[1;35m\1\033[0m', stats[0])
+def display(color: Color, product: str, stats: list):
+    """Displays the product description, English description, and code with formatting."""
+    descript = re.sub(r'(\d+)', color.wrap_text(r'\1', Color.MAGENTA), product)
+    eng_descript = re.sub(r'(\d+)', color.wrap_text(r'\1', Color.MAGENTA), stats[0])
     code = stats[1]
-
-    descript_width = 70
-    eng_descript_width = 65
-    code_width = 20
-    print(f"_ {descript.ljust(descript_width)} "
-          f"    {CYAN}{eng_descript.ljust(eng_descript_width)}{END} "
-          f"    {YELLOW}{code.ljust(code_width)}{END}")
+    print(f"_ {descript.ljust(70)}    {color.CYAN}{eng_descript.ljust(65)}{color.END}    {color.YELLOW}{code.ljust(25)}{color.END}")
 
 
-def all_exist(keys : list, check_string : str) -> bool:
+def all_keys_exist(keys: list, check_string: str) -> bool:
+    """Returns True if all keys exist in the check string."""
     return all(key in check_string for key in keys)
 
-def not_exist(words : list, target : str) -> bool:
+
+def none_keys_exist(words: list, target: str) -> bool:
+    """Returns True if none of the words exist in the target string."""
     return not any(word in target for word in words)
 
-def process_command():
-    while True:
-        try:
-            command = int(input("Command (1 to start and 0 to terminate the program): "))
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-            continue
 
-        if command == 0:
+def get_input(prompt: str) -> str:
+    """Safely gets input from the user."""
+    try:
+        return input(prompt)
+    except EOFError:
+        return ''
+
+
+def search_by_code(sig_key: str, sheet_dict: dict, color: Color):
+    """Searches for products by matching the code exactly."""
+    for prd_descript, stats in sheet_dict.items():
+        if stats[1] == sig_key:
+            display(color, prd_descript, stats)
+            return True
+    return False
+
+
+def product_search(sig_key: str, exclude_words: list, sheet_dict: dict) -> dict:
+    """Performs the product search based on significant keywords and exclusion."""
+    matching_products = {}
+    sig_key_list = sig_key.strip().lower().split()
+
+    for prd_descript, stats in sheet_dict.items():
+        if all_keys_exist(sig_key_list, prd_descript) and none_keys_exist(exclude_words, prd_descript):
+            matching_products[prd_descript] = stats
+    return matching_products
+
+
+def process_command(sheet_dict: dict):
+    color = Color()
+    while True:
+        command = get_input("Command (1 to start, 0 to terminate): ").strip()
+
+        if command == '0':
             print("Terminating. . . ")
             sys.exit(0)
 
-        elif command == 1:
-            # prior report
-            print("Report : ")
-            print(f"Number of items Information acquired : {len(sheet_dict)}")
-            print(f"Proceeding . . .")
+        if command == '1':
+            print(f"Report:\nNumber of items Information acquired: {len(sheet_dict)}\nProceeding. . .")
 
             while True:
-                our_options = {}
-                # Step 1: Input significant keywords
-                sigKeyString = input("\033[1;31mEnter sigKey(s): \033[0m")
-                sigKey = [word for word in sigKeyString.strip().lower().split()]
+                sig_key = get_input(color.wrap_text("Enter sigKey(s): ", Color.RED)).strip()
+                if sig_key.lower() == 'end':
+                    print("Terminating. . . ")
+                    sys.exit(0)
 
-                # step 2 : Exclude unwanted words
-                excludeString = input("Exclude : ")
-                exclude_words = [word for word in excludeString.strip().lower().split()]
+                exclude_words = get_input("Exclude: ").strip().lower().split()
 
-                # Check for CODE matching - input special case
-                code_pattern = r'\d{2}-\d{3}-\d{2}-\d{2}'
-                if sigKeyString == 'cls' or sigKeyString == 'clear':
+                # Clear screen or check by code if entered
+                if sig_key.lower() in ['cls', 'clear']:
                     os.system('cls')
-                elif re.fullmatch(code_pattern, sigKeyString):
-                    for prd_descript, stats in sheet_dict.items():
-                        if stats[1] == sigKeyString:
-                            display(prd_descript, stats)
-                            break
+                    continue
+
+                if re.fullmatch(r'\d{2}-\d{3}-\d{2}-\d{2}', sig_key):
+                    if search_by_code(sig_key, sheet_dict, color):
+                        continue
+
+                matching_products = product_search(sig_key, exclude_words, sheet_dict)
+
+                if not matching_products:
+                    print("No match found for sigKey(s).")
+                    if get_input("Re-enter sigKey(s) or 0 to terminate: ") == '0':
+                        sys.exit(0)
                 else:
-                    
-                    # Step 3: Search for products containing all significant keywords
-                    for prd_descript, stats in sheet_dict.items():
-                        if all_exist(sigKey, prd_descript) and not_exist(exclude_words, prd_descript):
-                            our_options[prd_descript] = stats
+                    detail = get_input("Detail (optional): ").strip().lower()
+                    if detail:
+                        details_list = detail.split()
+                        matching_products = {prd: stats for prd, stats in matching_products.items()
+                                             if all_keys_exist(details_list, stats[0])}
 
-                    if not our_options:
-                        print("No match found for sigKey(s).")
-                        try:
-                            command = int(input("Re-enter sigKey(s) (any key to re-enter, 0 to terminate): "))
-                            if command == 0:
-                                print("Terminating. . . ")
-                                sys.exit(0)
-                        except ValueError:
-                            print("retry...")
+                    if not matching_products:
+                        print("No match found with provided details.")
                     else:
-
-                        # Step 4: Ask for additional detail (optional)
-                        detail = input("Detail (optional): ")
-                        details = [e for e in detail.strip().lower().split()]
-                        if not detail:
-                            for prd_descript, stats in our_options.items():
-                                display(prd_descript, stats)
-                        else:
-                            cleaned_options = {}
-                            for prd_descript, stats in our_options.items():
-                                if all_exist(details, stats[0]):
-                                    cleaned_options[prd_descript] = stats
-                            if cleaned_options:
-                                for prd_descript, stats in cleaned_options.items():
-                                    display(prd_descript, stats)
-                            else:
-                                print("No match found after details provided. ")
-                                del cleaned_options
-                    del our_options
-
-        else:
-            print("Invalid command. Try again!")
+                        for prd_descript, stats in matching_products.items():
+                            display(color, prd_descript, stats)
 
 
-
-file_process(source_file)
 if __name__ == '__main__':
-    process_command()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    product_file_path = os.path.join(script_dir, '..', '..', 'data', 'DANH MUC SP KLS MARTIN_updated.xlsx')
+    product_file_path = os.path.abspath(product_file_path)
+    sheet_dict = file_process(product_file_path)
+    process_command(sheet_dict)
