@@ -1,0 +1,7 @@
+{
+  "product_data": "../data/DANH MUC SP KLS MARTIN_updated.xlsx",
+  "input_file": "../tests/result/input.txt",
+  "output_code_file": "../tests/result/code.txt",
+  "output_product_file": "../tests/result/product.txt"
+}
+  
