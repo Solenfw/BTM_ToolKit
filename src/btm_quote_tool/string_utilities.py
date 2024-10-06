@@ -16,7 +16,6 @@ substring_replacements = {
     'đáy hộp đựng và bảo quản dụng cụ phẫu thuật' : 'đáy hộp đựng và bảo quản dụng cụ marsafe',
     'khay lưới bảo quản dụng cụ phẫu thuật' : 'khay lưới đựng dụng cụ',
     'nắp hộp đựng và bảo quản dụng cụ phẫu thuật' : 'nắp hộp đựng và bảo quản dụng cụ marsafe',
-    'không có lỗ thoát khí' : 'đáy kín'
 }
 
 
@@ -28,7 +27,7 @@ def all_keywords_exist(keywords: list, check_string: str) -> bool:
 
 def string_cleaner(text: str) -> str:
     """Cleans and standardizes input text for comparison."""
-    text = re.sub(r'[^\w\s/]', '', text)                 # Remove special characters
+    text = re.sub(r'[^\w\s/-]', '', text)                 # Remove special characters
     text = re.sub(r'\s+', ' ', text).strip().lower()    # Normalize whitespace and case
     
     # Apply substring replacements
