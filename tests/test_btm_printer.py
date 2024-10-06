@@ -7,7 +7,7 @@ from contextlib import redirect_stdout
 # Add the `src/` directory to the system path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from btm_quote_tool.btm_printer import print_btm_3d
+from BTM_Quote_Tool.btm_printer import print_btm_3d
 
 class TestBTMPrinter(unittest.TestCase):
     def test_print_btm_3d(self):
