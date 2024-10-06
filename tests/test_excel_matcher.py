@@ -4,7 +4,7 @@ import unittest
 from fuzzywuzzy import fuzz
 
 # Add source directory to the system path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/BTM_Quote_Tool')))
 
 from BTM_Quote_Tool.string_utilities import string_cleaner
 
