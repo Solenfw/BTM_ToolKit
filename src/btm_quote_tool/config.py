@@ -39,7 +39,7 @@ def data_processor(file_path: str) -> dict:
 def init_environment(config):
     """Sets up the environment and retrieves the necessary product data."""
     # Enter products needed for matching
-    os.system(f"notepad {Path(config["input_file"]).resolve()}")
+    os.system(f"notepad {Path(config['input_file']).resolve()}")
     
     product_file_path = Path(config["product_data"]).resolve()
     try:
