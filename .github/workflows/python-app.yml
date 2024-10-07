@@ -37,4 +37,4 @@ jobs:
     - name: Test with pytest
       run: |
         # Run pytest only if test files are found
-        if ls tests/*.py 1> /dev/null 2>&1; then pytest; else echo "No test files found, skipping tests."; fi
+        if ls tests/test_*.py 1> /dev/null 2>&1; then pytest; else echo "No test files found, skipping tests."; fi
