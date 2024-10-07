@@ -27,7 +27,7 @@ def find_best_match(keywords, product_data) -> list[str]:
         
         for description in product_data.keys():
             similarity_score = calculate_similarity(keyword, description)
-            if similarity_score >= 140 and similarity_score > best_score:
+            if similarity_score >= 130 and similarity_score > best_score:
                 best_score = similarity_score
                 best_match = description
 
