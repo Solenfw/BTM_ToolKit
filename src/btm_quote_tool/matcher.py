@@ -10,11 +10,10 @@ def calculate_similarity(keyword: str, product: str) -> int:
     # Check for a perfect match based on word containment
     keywords = keyword.split()
     if all_keywords_exist(keywords, product):
-        return 100
+        return 200
 
-    score = fuzz.token_set_ratio(keyword, product)
+    score = fuzz.token_set_ratio(keyword, product) + fuzz.ratio(keyword, product)
     return score
-
 
 
 def find_best_match(keywords, product_data) -> list[str]:
@@ -25,10 +24,10 @@ def find_best_match(keywords, product_data) -> list[str]:
     for keyword in keywords:
         best_match = None
         best_score = 0
-
+        
         for description in product_data.keys():
             similarity_score = calculate_similarity(keyword, description)
-            if similarity_score >= 70 and similarity_score > best_score:
+            if similarity_score >= 130 and similarity_score > best_score:
                 best_score = similarity_score
                 best_match = description
 
