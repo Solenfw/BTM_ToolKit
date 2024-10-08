@@ -1,5 +1,4 @@
 from pathlib import Path
-from .config import load_config
 
 def load_input(config : object, file_path : str) -> list[str]:
     """Loads input keywords from a file."""

@@ -1,6 +1,6 @@
 from fuzzywuzzy import fuzz
 from .string_utilities import *
-
+from typing import Tuple, List
 
 def calculate_similarity(keyword: str, product: str) -> int:
     """Validates and scores the similarity between a keyword and a product description."""
@@ -16,7 +16,7 @@ def calculate_similarity(keyword: str, product: str) -> int:
     return score
 
 
-def find_best_match(keywords, product_data) -> list[str]:
+def find_best_match(keywords, product_data) -> Tuple[List[str], List[str]]:
     """Finds the best matching product for each keyword."""
     product_codes = []
     matched_products = []

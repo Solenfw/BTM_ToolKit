@@ -8,6 +8,10 @@ __pycache__/
 exe.py
 data_lookup.py
 
+# .txt files (for output storage)
+tests/result/
+
+
 # C extensions
 *.so
 
