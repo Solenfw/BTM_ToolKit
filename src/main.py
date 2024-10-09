@@ -19,8 +19,7 @@ def main():
     logging.info("DONE : init config paths and env.")
 
     keywords = load_input(config, "input_file")
-    logging.info(f"DONE : retrieve input : \n{'\n'.join(keywords)}")
-
+    logging.info("DONE : retrieved inputs. ")
     product_codes, matched_products = find_best_match(keywords, product_data)
     save_output(config, "output_code_file", product_codes)
     save_output(config, "output_product_file", matched_products)
