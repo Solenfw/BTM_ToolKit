@@ -32,7 +32,6 @@ def main():
 
     keywords = load_input(config, "input_file")
     logging.info("DONE : retrieved inputs. ")
-    logging.info(f"DONE : retrieve input : \n{'\n'.join(keywords)}")
 
     product_codes, matched_products = find_best_match(keywords, product_data)
     save_output(config, "output_code_file", product_codes)
@@ -42,11 +41,6 @@ def main():
     logging.info(f"DONE : write code & product to relevant output files.")
 
     # open for review
-    # os.system(f"notepad {Path(config['output_code_file']).resolve()}")
-    _end = time.time()
-    time_spent = _end - _exe
-    logging.info (f"Execution time: {time_spent:.2f} seconds")
-    print("DONE!")
     # os.system(f"notepad {Path(config['output_code_file']).resolve()}")
     _end = time.time()
     time_spent = _end - _exe
