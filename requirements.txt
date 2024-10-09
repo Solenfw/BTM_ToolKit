@@ -1,4 +1,4 @@
-pandas
+pandas~=2.2.3
 openpyxl
-fuzzywuzzy
+fuzzywuzzy~=0.18.0
 python-Levenshtein

@@ -64,13 +64,6 @@ def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tupl
         name_filtered_options = filter_out(product_data, keyword, family_names)
         tag_filtered_options = filter_out(product_data, keyword, name_tags)
 
-
-        if name_filtered_options:
-            logging.info(f"name_filtered_options:\n {'\n'.join(list(name_filtered_options.keys()))}")
-        if tag_filtered_options:
-            logging.info(f"tag_filtered_options:\n {'\n'.join(list(tag_filtered_options.keys()))}")
-
-
         # Use full product data if filtering failed
         if tag_filtered_options is not None and name_filtered_options is not None:
             final_options = {**tag_filtered_options, **name_filtered_options}
