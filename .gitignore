@@ -9,7 +9,7 @@ exe.py
 data_lookup.py
 
 # .txt files (for output storage)
-tests/result/
+tests/
 
 
 # C extensions
