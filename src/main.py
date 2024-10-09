@@ -10,15 +10,6 @@ logging.basicConfig(
     filemode='w',
     encoding='utf-8'
 )
-import time
-import logging
-
-logging.basicConfig(
-    filename='main_workflow.log',
-    level=logging.INFO,
-    filemode='w',
-    encoding='utf-8'
-)
 
 
 def main():
