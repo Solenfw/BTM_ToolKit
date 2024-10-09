@@ -10,7 +10,7 @@ data_lookup.py
 
 # .txt files (for output storage)
 tests/
-
+tests/
 
 # C extensions
 *.so
