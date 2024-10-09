@@ -15,7 +15,11 @@ substring_replacements = {
     'vòng giữ dụng cụ có cán vòng' : 'kim băng cài giữ dụng cụ',
     'đáy hộp đựng và bảo quản dụng cụ phẫu thuật' : 'đáy hộp đựng và bảo quản dụng cụ marsafe',
     'khay lưới bảo quản dụng cụ phẫu thuật' : 'khay lưới đựng dụng cụ',
+    'khay lưới đựng dụng cụ phẫu thuật' : 'khay lưới đựng dụng cụ',
     'nắp hộp đựng và bảo quản dụng cụ phẫu thuật' : 'nắp hộp đựng và bảo quản dụng cụ marsafe',
+    'Que thăm' : 'que nong',
+    'bát tròn' : 'chén tròn',
+    'thìa nạo tử cung' : 'nạo tử cung'
 }
 
 
@@ -27,12 +31,13 @@ def all_keywords_exist(keywords: list, check_string: str) -> bool:
 
 def string_cleaner(text: str) -> str:
     """Cleans and standardizes input text for comparison."""
-    text = re.sub(r'[^\w\s/-]', '', text)                 # Remove special characters
-    text = re.sub(r'\s+', ' ', text).strip().lower()    # Normalize whitespace and case
+    text = re.sub(r'[^\w\s/.-]', '', text)                 # Remove special characters
+    text = re.sub(r'\s+', ' ', text).strip().lower()       # Normalize whitespace and case
     
     # Apply substring replacements
-    for original_text, replacement_text in substring_replacements.items():
-        original_text = re.sub(r'\s+', ' ', text).strip().lower() 
-        replacement_text = re.sub(r'\s+', ' ', text).strip().lower() 
-        text = text.replace(original_text, replacement_text)
+    for original, sub in substring_replacements.items():
+        original_text = re.sub(r'\s+', ' ', original).strip().lower()
+        replacement = re.sub(r'\s+', ' ', sub).strip().lower()
+        text = text.replace(original_text, replacement) if original_text in text else text
     return text
+

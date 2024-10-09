@@ -1,11 +1,12 @@
 {
   "product_data": "../data/DANH MUC SP KLS MARTIN_updated.xlsx",
   "family_name_file": "../data/family_name.txt",
-  "vn_descript_csv" : "../data/csv source/vn_descript.csv",
-  "eng_descript_csv" : "../data/csv source/eng_descript.csv",
-  "product_code_file" : "../data/csv source/product_code.txt",
+  "name_tag_file" : "../data/name_tag.txt",
+  "vn_descript_csv": "../data/csv source/vn_descript.csv",
+  "eng_descript_csv": "../data/csv source/eng_descript.csv",
+  "product_code_file": "../data/csv source/product_code.txt",
   "input_file": "../tests/result/input.txt",
   "output_code_file": "../tests/result/code.txt",
-  "output_product_file": "../tests/result/product.txt"
+  "output_product_file": "../tests/result/product.txt",
+  "main_path": "../src/main.py"
 }
-  
