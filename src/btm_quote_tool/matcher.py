@@ -33,10 +33,6 @@ def filter_out(product_data: Dict[str, Tuple], keyword: str, words_included: Lis
 
 
 def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tuple[List[str], List[str]]:
-    """
-    Finds the best matching product for each keyword by filtering products based on family names 
-    and calculating similarity scores. Returns the matched product codes and descriptions.
-    """
     product_codes = []
     matched_products = []
 

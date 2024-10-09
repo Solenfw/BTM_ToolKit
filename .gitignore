@@ -12,7 +12,6 @@ data_lookup.py
 tests/
 tests/
 
-
 # C extensions
 *.so
 
