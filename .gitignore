@@ -7,10 +7,11 @@ __pycache__/
 # local .py files
 exe.py
 data_lookup.py
+main.py
 
 # .txt files (for output storage)
 tests/
-tests/
+myscripts/
 
 # C extensions
 *.so
@@ -99,3 +100,4 @@ data/
 
 # Docker files (if applicable)
 docker-compose.override.yml
+src/main.py
