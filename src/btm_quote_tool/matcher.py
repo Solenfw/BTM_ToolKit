@@ -1,14 +1,34 @@
-from typing import Tuple, List, Dict
-from .string_utilities import string_cleaner, size_format
+from .string_utilities import string_cleaner
 from .file_operations import load_input
 from .scorer import calculate_similarity
 from .config import load_config
 import logging
 
 
+def stats_filter_out(product: dict[str, tuple[str, str]], keyword: str) -> dict[str, tuple[str, str]] | None:
+    product_stats = {
+        'cong': 'cvd',
+        'thẳng': 'str',
+        'cứng': 'rig',
+        'răng cưa': 'serr'
+    }
+    filtered_product = {}
+
+    avai_stats = [key for key in product_stats if key in keyword]
+    if not avai_stats:
+        return None
+
+    for key, info in product.items():
+        if all(product_stats[stat] in info[0] for stat in avai_stats):
+            filtered_product[key] = info
+
+    return filtered_product
+
+
+
 
 # filter out family_names + name_tags
-def filter_out(product_data: Dict[str, Tuple], keyword: str, words_included: List[str]) -> Dict[str, Tuple]:
+def name_filter_out(product_data: dict[str, tuple], keyword: str, words_included: list[str]) -> dict[str, tuple] | None:
     refined_options = [word for word in words_included if word in keyword]
     if not refined_options:
         return None
@@ -21,7 +41,7 @@ def filter_out(product_data: Dict[str, Tuple], keyword: str, words_included: Lis
 
 
 
-def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tuple[List[str], List[str]]:
+def find_best_match(keywords: list[str], product_data: dict[str, tuple]) -> tuple[list[str], list[str]]:
     product_codes, matched_products = [], []
 
     # Load configuration, family names, and name tags
@@ -33,13 +53,12 @@ def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tupl
         logging.info(f"INFO --> {index + 1} _ product : {keyword}")
 
         keyword_cleaned = string_cleaner(keyword)
-        keyword_cleaned = size_format(keyword_cleaned)
         best_match, best_score = None, 0
-        logging.info(f"REF --> after cleaned : {keyword_cleaned}")
+        logging.info(f"       after cleaned : {keyword_cleaned}")
 
         # Filter by family names or name tags
-        name_filtered = filter_out(product_data, keyword_cleaned, family_names)
-        tag_filtered = filter_out(product_data, keyword_cleaned, name_tags)
+        name_filtered = name_filter_out(product_data, keyword_cleaned, family_names)
+        tag_filtered = name_filter_out(product_data, keyword_cleaned, name_tags)
 
         # Use original product_data if filtering failed
         if tag_filtered and name_filtered:
@@ -51,11 +70,12 @@ def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tupl
         else:
             final_options = product_data
 
+        temp_options = stats_filter_out(final_options, keyword_cleaned)
+        final_options = temp_options if temp_options is not None else final_options
+
         # Calculate similarity for each product description
         for description in final_options.keys():
-            description_cleaned = string_cleaner(description)
-            description_cleaned = size_format(description_cleaned)
-            similarity_score = calculate_similarity(keyword_cleaned, description_cleaned)
+            similarity_score = calculate_similarity(keyword_cleaned, description)
 
             if similarity_score > best_score:
                 best_score = similarity_score
@@ -65,6 +85,8 @@ def find_best_match(keywords: List[str], product_data: Dict[str, Tuple]) -> Tupl
         if best_match:
             matched_products.append(best_match)
             product_codes.append(final_options[best_match][1])  # Assuming product code at index 1
+            logging.info(f"     product matched : {best_match}")
+            logging.info(f"      matching score : {best_score}")
         else:
             matched_products.append("NONE")
             product_codes.append("NONE")

@@ -6,6 +6,7 @@ substring_replacements = {
     'nhíp': 'kẹp',
     'nhíp mô': 'kẹp phẫu tích mô',
     'kẹp mang kim': 'kìm kẹp kim',
+    'kìm mang kim': 'kìm kẹp kim',
     'kẹp động mạch': 'kẹp mạch máu',
     'cán dao mổ': 'cán dao phẫu thuật',
     'nẩy xương': 'bẩy xương',
@@ -40,6 +41,12 @@ def string_cleaner(text: str) -> str:
         original_text = re.sub(r'\s+', ' ', original).strip().lower()
         replacement = re.sub(r'\s+', ' ', sub).strip().lower()
         text = text.replace(original_text, replacement) if original_text in text else text
+
+    # stats format
+    text = size_format(text)
+    text = tip_format(text)
+    text = tray_format(text)
+
     return text
 
 
@@ -63,3 +70,22 @@ def size_format(input_str: str) -> str:
 
     result = re.sub(pattern, mm_to_cm, input_str)
     return result
+
+
+def tip_format(text: str) -> str:
+    pattern = r'(đầu)\s+\w+\s+(\d+(\.\d+)?)\s*(mm)'
+    match = re.search(pattern, text)
+    if not match:
+        return text
+    modified_text = re.sub(pattern, r'\1 \2 \4', text)
+    return modified_text
+
+
+def tray_format(text : str) -> str:
+    pattern = r'(\d{3})\s*x\s*(\d{3})\s*x\s*(\d{2})\s*(mm)'
+    match = re.search(pattern, text)
+    if not match:
+        return text
+
+    modified_text = re.sub(pattern, r'\1x\2x\3 \4', text)
+    return modified_text
