@@ -1,11 +1,31 @@
 import pandas as pd
 import re
 
+# Hàm tách chuỗi dựa trên dấu phẩy nhưng không tách nếu đó là số thập phân
+def tach_chuoi_voi_dau_phay(thong_so):
+    if isinstance(thong_so, str):
+        # Sử dụng biểu thức chính quy để tìm tất cả số thập phân và lưu trữ chúng
+        decimal_numbers = re.findall(r'\d+,\d+', thong_so)
+
+        # Thay thế các số thập phân bằng một ký hiệu đặc biệt tạm thời (VD: "{DECIMAL}")
+        temp_string = re.sub(r'\d+,\d+', '{DECIMAL}', thong_so)
+
+        # Tách chuỗi dựa trên dấu phẩy thông thường (không bao gồm số thập phân)
+        parts = [part.strip() for part in temp_string.split(',')]
+
+        # Đưa lại các số thập phân vào vị trí ban đầu
+        for i, part in enumerate(parts):
+            if '{DECIMAL}' in part:
+                parts[i] = part.replace('{DECIMAL}', decimal_numbers.pop(0))
+
+        return parts
+    return []
+
 # Hàm tách thông số sản phẩm từ cột VN_Description
 def tach_thong_so_san_pham(thong_so, tu_khoa_list):
-    if isinstance(thong_so, str):  # Kiểm tra nếu thong_so là chuỗi
-        # Tách chuỗi thành các phần nhỏ dựa trên dấu phẩy hoặc dấu gạch ngang
-        phan_tu = re.split(r'[,-]', thong_so)
+    if isinstance(thong_so, str):
+        # Tách chuỗi bằng cách sử dụng hàm tach_chuoi_voi_dau_phay
+        phan_tu = tach_chuoi_voi_dau_phay(thong_so)
 
         # Gộp phần trước và sau dấu phẩy cuối cùng vào cột Product Size
         product_size = phan_tu[-1].strip() if len(phan_tu) > 1 else ''
@@ -14,14 +34,18 @@ def tach_thong_so_san_pham(thong_so, tu_khoa_list):
         # Lấy Name Tag là từ viết hoa trong mô tả, loại trừ từ đầu tiên
         name_tag = ' '.join([word for word in product_description.split()[1:] if word[0].isupper()])
 
+        # Loại bỏ phần trùng lặp trong Product Description nếu Product Size đã tồn tại
+        if product_size in product_description:
+            product_description = product_description.replace(product_size, '').strip()
+
         # Lấy Product Family từ từ khóa nếu có trong mô tả
         product_family = ''
-        first_word = product_description.split()[0] if product_description.split() else ''
         
-        # Kiểm tra nếu từ đầu trùng với một trong các từ khóa
+        # Kiểm tra từng từ trong từ khóa, nếu khớp với mô tả, sẽ thêm vào Product Family
         for tu_khoa in tu_khoa_list:
-            if first_word.lower() == tu_khoa.lower():
-                product_family = first_word
+            if tu_khoa.lower() in thong_so.lower():
+                # Ghép từ khóa vào Product Family
+                product_family = tu_khoa
                 break
 
         return {
@@ -63,39 +87,26 @@ def xuat_file_excel(df, file_name):
 # Hàm chính để thực hiện quy trình
 def xu_ly_file_va_tim_kiem(file_path):
     # Người dùng nhập nhiều từ khóa cho Product Family (cách nhau bằng dấu phẩy)
-    tu_khoa = input("Nhập từ khóa cho Product Family (cách nhau bằng dấu phẩy): ")
-    tu_khoa_list = [word.strip() for word in tu_khoa.split(',')]  # Chia nhỏ và lưu vào danh sách
-    
-    # Đọc và xử lý file Excel
-    df = doc_va_xu_ly_excel(file_path, tu_khoa_list)
+    while True:
+        tu_khoa = input("Nhập từ khóa cho Product Family (cách nhau bằng dấu phẩy): ")
+        tu_khoa_list = [word.strip() for word in tu_khoa.split(',')]  # Chia nhỏ và lưu vào danh sách
+        
+        # Đọc và xử lý file Excel
+        df = doc_va_xu_ly_excel(file_path, tu_khoa_list)
 
-    # Lọc các sản phẩm có sự trùng khớp với từ khóa
-    df_ket_qua = df[df['Product Family'].isin(tu_khoa_list)]
+        # Lọc các sản phẩm có sự trùng khớp với từ khóa
+        df_ket_qua = df[df['Product Family'] != '']  # Chỉ chọn các dòng có từ khóa tìm được
+        
+        # Kiểm tra nếu có sản phẩm nào để lưu
+        if df_ket_qua.empty:
+            print("Không có sản phẩm nào trùng khớp với từ khóa. Vui lòng nhập lại.")
+        else:
+            break  # Dừng khi tìm thấy sản phẩm khớp
     
-    # In kết quả
-    print("\nKết quả sản phẩm có sự trùng khớp:")
-    print(df_ket_qua)
-
-    # Kiểm tra nếu có sản phẩm nào để chọn
-    if df_ket_qua.empty:
-        print("Không có sản phẩm nào trùng khớp với từ khóa.")
-        return
-    
-    # Người dùng chọn sản phẩm để lưu
-    print("\nChọn sản phẩm để lưu (nhập số dòng, cách nhau bằng dấu phẩy): ")
-    for index, row in df_ket_qua.iterrows():
-        print(f"{index}: {row['VN_Description']}")
-
-    selected_indices = input("Nhập số dòng mà bạn muốn lưu: ")
-    selected_indices_list = [int(idx.strip()) for idx in selected_indices.split(',') if idx.strip().isdigit()]
-    
-    # Lưu các sản phẩm đã chọn vào DataFrame mới
-    df_selected = df_ket_qua.loc[selected_indices_list]
-
     # Xuất kết quả ra file Excel mới
-    xuat_file_excel(df_selected, 'ket_qua_tim_kiem.xlsx')
+    xuat_file_excel(df_ket_qua, 'ket_qua_tim_kiem1dao.xlsx')
     print("Kết quả đã được xuất ra file 'ket_qua_tim_kiem.xlsx'.")
 
 # Ví dụ gọi hàm chính với file Excel
-file_path = 'duong_dan_den_file_excel.xlsx'  # Thay đổi đường dẫn đến file của bạn
+file_path = r'D:\Work\Code\BTM_code\Excel\FIle test.xlsx'  # Thay đổi đường dẫn đến file của bạn
 xu_ly_file_va_tim_kiem(file_path)
