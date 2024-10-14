@@ -105,4 +105,3 @@ data/
 
 # Docker files (if applicable)
 docker-compose.override.yml
-src/main.py
