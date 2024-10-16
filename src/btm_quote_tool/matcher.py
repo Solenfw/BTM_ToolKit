@@ -1,9 +1,8 @@
 from .string_utilities import string_cleaner
 from .file_operations import load_input
-from .scorer import calculate_similarity
-from .config import load_config
-import logging
-
+from .scorer import calculate_similarity, log_print
+from .config import load_config, setup_logger
+from logging import Logger
 
 def stats_filter_out(product: dict[str, tuple[str, str]], keyword: str) -> dict[str, tuple[str, str]] | None:
     product_stats = {
@@ -41,7 +40,8 @@ def name_filter_out(product_data: dict[str, tuple], keyword: str, words_included
 
 
 
-def find_best_match(keywords: list[str], product_data: dict[str, tuple]) -> tuple[list[str], list[str]]:
+
+def find_best_match(general_log : Logger, score_log : Logger, keywords: list[str], product_data: dict[str, tuple]) -> tuple[list[str], list[str]]:
     product_codes, matched_products = [], []
 
     # Load configuration, family names, and name tags
@@ -50,11 +50,11 @@ def find_best_match(keywords: list[str], product_data: dict[str, tuple]) -> tupl
 
     # Process each keyword
     for index, keyword in enumerate(keywords):
-        logging.info(f"INFO --> {index + 1} _ product : {keyword}")
+        general_log.info(f"INFO --> {index + 1} _ product : {keyword}")
 
         keyword_cleaned = string_cleaner(keyword)
         best_match, best_score = None, 0
-        logging.info(f"       after cleaned : {keyword_cleaned}")
+        general_log.info(f"       after cleaned : {keyword_cleaned}")
 
         # Filter by family names or name tags
         name_filtered = name_filter_out(product_data, keyword_cleaned, family_names)
@@ -85,10 +85,13 @@ def find_best_match(keywords: list[str], product_data: dict[str, tuple]) -> tupl
         if best_match:
             matched_products.append(best_match)
             product_codes.append(final_options[best_match][1])  # Assuming product code at index 1
-            logging.info(f"     product matched : {best_match}")
-            logging.info(f"      matching score : {best_score}")
+            general_log.info(f"     product matched : {best_match}")
+            general_log.info(f"      matching score : {best_score}")
+            log_print(score_log, keyword, best_match)
         else:
             matched_products.append("NONE")
             product_codes.append("NONE")
+            general_log.info(f"     product matched : No suitable option found.")
+            log_print(score_log, False)
 
     return product_codes, matched_products

@@ -1,7 +1,33 @@
 import re
 import sys
+from logging import Logger
 from fuzzywuzzy import fuzz
 sys.stdout.reconfigure(encoding='utf-8')
+
+
+def log_print(score_log : Logger, keyword : str = '', product : str = '', flag=True):
+    if flag:
+        size_pattern = r'(dài)\s+(\d+(\.\d+)?)\s*(mm|cm)'
+        tip_pattern = r'(đầu)\s+(\d+(\.\d+)?)\s*(mm)'
+        tray_patterns = [
+            r'(\d{3})\s*x\s*(\d{3})\s*x\s*(\d{2})\s*(mm)',
+            r'(\d{3})\s*x\s*(\d{3})\s*x\s*(\d{3})\s*(mm)',
+            r'(\d{2})\s*x\s*(\d{2})\s*x\s*(\d{2})\s*(mm)'
+        ]
+
+        score_log.info(f"INFO -> _input   : {keyword}")
+        score_log.info(f"INFO -> _match   : {product}")
+        score_log.info(f"   Fuzz.score    : {fuzz_score(keyword, product)}")
+        if re.search(size_pattern, keyword):
+            score_log.info(f"   SIZE.score    : {size_matching_score(keyword, product)}")
+        if re.search(tip_pattern, keyword):
+            score_log.info(f"    TIP.score     : {tip_matching_score(keyword, product)}")
+        if any(re.search(pattern, keyword) for pattern in tray_patterns):
+            score_log.info(f"   TRAY.score    : {tray_matching_score(keyword, product)}")
+    else:
+        score_log.info(f"INFO -> _product : {keyword}")
+        score_log.info("           RESULT : No Match Found.")
+
 
 def fuzz_score(keyword: str, product: str) -> float:
     token_set_score = fuzz.token_set_ratio(keyword, product)
@@ -11,7 +37,7 @@ def fuzz_score(keyword: str, product: str) -> float:
     return round(weighted_score, 2)
 
 
-# need to throughly check before adding in the workflow
+
 def size_matching_score(keyword: str, product: str) -> float:
     pattern = r'(dài)\s+(\d+(\.\d+)?)\s*(mm|cm)'
 
@@ -97,7 +123,9 @@ def calculate_similarity(keyword: str, product: str) -> float:
 
     if tip_score:
         final_score += tip_score * 0.1 + similarity * 0.6 + size_score * 0.3 + tray_score
-    else:
+    elif size_score:
         final_score += size_score * 0.3 + similarity * 0.7 + tray_score
+    else:
+        final_score += similarity + tray_score
     return round(final_score, 2)
 
