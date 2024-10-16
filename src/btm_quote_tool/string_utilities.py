@@ -52,7 +52,8 @@ def string_cleaner(text: str) -> str:
 
 def size_format(input_str: str) -> str:
     pattern = r'(dài)\s+(\d+(\.\d+)?)\s*(mm|cm)'
-    
+    match = re.search(pattern, input_str)
+    if not match: return input_str
     def mm_to_cm(match):
         if match.group(4) == 'mm':
             mm_value = float(match.group(2))
@@ -67,7 +68,6 @@ def size_format(input_str: str) -> str:
                 return f"{match.group(1)} {int(cm_value)} cm"
             else:
                 return f"{match.group(1)} {cm_value:.1f} cm"
-
     result = re.sub(pattern, mm_to_cm, input_str)
     return result
 

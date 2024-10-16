@@ -15,8 +15,8 @@ package.json
 node_modules/
 
 # .txt files (for output storage)
-tests/
 myscripts/
+
 
 # C extensions
 *.so
@@ -59,6 +59,8 @@ coverage.xml
 pytest_cache/
 pytest-debug.log
 
+test_*.py
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -87,11 +89,11 @@ ehthumbs.db
 .env.*
 
 # Local testing / debugging artifacts
+log/
 *.log
-debug.log
 
 # Any large data files (optional)
-data/
+
 
 # Python packaging and build artifacts
 *.manifest
@@ -105,4 +107,3 @@ data/
 
 # Docker files (if applicable)
 docker-compose.override.yml
-src/main.py

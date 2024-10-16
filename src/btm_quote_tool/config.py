@@ -1,5 +1,6 @@
 import json
 import logging
+from logging import Logger
 import os
 from pathlib import Path
 import pandas as pd
@@ -48,7 +49,8 @@ def is_file_empty(file_path):
 
 
 
-def init_environment(config):
+def init_environment(log : Path, config : object) -> dict[str, tuple]:
+    # general_log = setup_logger(Path('log/workflow.log'))
     """Sets up the environment and retrieves the necessary product data."""
     # Enter products needed for matching
     user_input_path = Path(config['tests']['input_file']).resolve()
@@ -58,8 +60,17 @@ def init_environment(config):
     product_file_path = Path(config['data_source']["product_data"]).resolve()
     try:
         product_data = data_processor(product_file_path)
-        logging.info("DONE : Dataset fully loaded & cleaned.")
+        log.info("DONE : Dataset fully loaded & cleaned.")
         return product_data
     except FileNotFoundError as e:
         print(f"Error: {e}")
         return None
+
+
+def setup_logger(name : str, log_file: Path, level: int = logging.INFO, filemode: str = 'w', encoding: str = 'utf-8') -> Logger:
+    """Function to setup a logger for a specific file with filemode and encoding."""
+    logger = logging.getLogger(name)
+    handler = logging.FileHandler(log_file, mode=filemode, encoding=encoding)  
+    logger.setLevel(level)
+    logger.addHandler(handler)
+    return logger
