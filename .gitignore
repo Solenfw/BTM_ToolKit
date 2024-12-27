@@ -4,10 +4,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# local .py files
-exe.py
-data_lookup.py
-GUI_.py
 
 # irrelevant packages
 package-lock.json
