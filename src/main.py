@@ -23,9 +23,9 @@ def main():
     general_log.info("DONE : Matching terminated. ")
     execution_time = _end - _start
     general_log.info(f"Execution time : {execution_time:.2f} s")
-    input_file_path = Path(config['tests']['input_file']).resolve()
-    with open(input_file_path, 'w'):
-        pass
+    # input_file_path = Path(config['tests']['input_file']).resolve()
+    # with open(input_file_path, 'w'):
+    #     pass
     print("DONE!.")
 
 

@@ -16,7 +16,8 @@ node_modules/
 
 # .txt files (for output storage)
 myscripts/
-
+tests/
+.*.txt
 
 # C extensions
 *.so
