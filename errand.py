@@ -2,7 +2,7 @@ import csv
 import re
 import os
 from pathlib import Path
-import pdfplumber
+import pdfplumber 
 from rapidfuzz import fuzz
 from src.script import PDFUtils
 from BTM_Quote_Tool.config import load_config
