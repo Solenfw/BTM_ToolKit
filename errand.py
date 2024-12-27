@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import pdfplumber
 from rapidfuzz import fuzz
-from myscripts.script import PDFUtils
+from src.script import PDFUtils
 from BTM_Quote_Tool.config import load_config
 config = load_config()
 kls_source_file = Path(config['csv_source']['kls_product_csv'])
