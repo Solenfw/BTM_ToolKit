@@ -1,8 +1,13 @@
 import regex
 import csv
-import sys, os
+import sys
+import os
 from pathlib import Path
+
+# Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+
+# Import custom modules
 from BTM_Quote_Tool.string_utilities import string_cleaner
 from BTM_Quote_Tool.config import data_processor, load_config
 
