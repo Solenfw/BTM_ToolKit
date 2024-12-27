@@ -1,0 +1,110 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+
+# local .py files
+exe.py
+data_lookup.py
+GUI_.py
+
+# irrelevant packages
+package-lock.json
+package.json
+node_modules/
+
+# .txt files (for output storage)
+myscripts/
+tests/
+.*.txt
+
+# C extensions
+*.so
+
+# Virtual environment directory
+venv/
+env/
+myvenv/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.cache/
+pytest_cache/
+pytest-debug.log
+
+test_*.py
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Sphinx documentation
+docs/_build/
+
+# PyCharm IDE specific
+.idea/
+
+# VSCode specific files
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Local testing / debugging artifacts
+log/
+*.log
+
+# Any large data files (optional)
+
+
+# Python packaging and build artifacts
+*.manifest
+*.spec
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Docker files (if applicable)
+docker-compose.override.yml
