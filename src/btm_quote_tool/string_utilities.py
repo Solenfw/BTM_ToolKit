@@ -2,26 +2,26 @@ import re
 
 # special cases of substrings
 substring_replacements = {
-    'xám' : 'bạc',
+    'hoặc tương đương' : '',
     'nhíp': 'kẹp',
+    'kềm' : 'kìm',
     'nhíp mô': 'kẹp phẫu tích mô',
     'kẹp mang kim': 'kìm kẹp kim',
+    'kẹp cầm máu' : 'kẹp mạch máu',
     'kìm mang kim': 'kìm kẹp kim',
     'kẹp động mạch': 'kẹp mạch máu',
     'cán dao mổ': 'cán dao phẫu thuật',
-    'nẩy xương': 'bẩy xương',
     'khay đựng hình quả thận': 'đĩa thận',
-    'vén não': 'thìa phẫu thuật',
-    'vén rễ thần kinh': 'móc',
+    'khay quả thận' : 'đĩa thận',
+    'khay thận' : 'đĩa thận',
     'vòng giữ dụng cụ có cán vòng' : 'kim băng cài giữ dụng cụ',
-    'đáy hộp đựng và bảo quản dụng cụ phẫu thuật' : 'đáy hộp đựng và bảo quản dụng cụ',
-    'Hộp hấp đựng và bảo quản dụng cụ phẫu thuật' : 'Hộp đựng và bảo quản dụng cụ',
-    'khay lưới bảo quản dụng cụ phẫu thuật' : 'khay lưới đựng dụng cụ',
-    'khay lưới đựng dụng cụ phẫu thuật' : 'khay lưới đựng dụng cụ',
-    'nắp hộp đựng và bảo quản dụng cụ phẫu thuật' : 'nắp hộp đựng và bảo quản dụng cụ',
-    'Que thăm' : 'que nong',
     'bát tròn' : 'chén tròn',
-    'thìa nạo tử cung' : 'nạo tử cung'
+    'thìa nạo tử cung' : 'nạo tử cung',
+    'Cốc đựng dung dịch' : 'cốc đo có chia vạch',
+    'Cốc đo dung tích' : 'cốc đo có chia vạch',
+    'hoặc tương đương' : '',
+    'Nhãn nhận biết' : ' nhãn định danh',
+    'Đệm giữ silicon' : 'tấm silicone',
 }
 
 
@@ -32,9 +32,15 @@ def all_keywords_exist(keywords: list, check_string: str) -> bool:
 
 
 def string_cleaner(text: str) -> str:
+    text = str(text)
     """Cleans and standardizes input text for comparison."""
-    text = re.sub(r'[^\w\s/.-]', '', text)                 # Remove special characters
-    text = re.sub(r'\s+', ' ', text).strip().lower()       # Normalize whitespace and case
+    if (not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text)):
+        text = re.sub(r'[^\w\.\\\/]', ' ', text).strip()             # Remove special characters
+    elif len(text) <= 10:
+         text = re.sub(r'[^\w\.\\\/-]', ' ', text).strip()  
+    else:
+        text = re.sub(r'[^\w-]', ' ', text).strip() 
+    text = re.sub(r'\s+', ' ', text).strip().lower()               # Normalize whitespace and case
     
     # Apply substring replacements
     for original, sub in substring_replacements.items():
@@ -45,35 +51,34 @@ def string_cleaner(text: str) -> str:
     # stats format
     text = size_format(text)
     text = tip_format(text)
-    text = tray_format(text)
+    text = box_format(text)
 
     return text
 
 
 def size_format(input_str: str) -> str:
-    pattern = r'(dài)\s+(\d+(\.\d+)?)\s*(mm|cm)'
+    pattern = r'(dài)\s+(\d+(\.\d+)?)\s*(mm|cm)'  # Pattern to match sizes with units (mm or cm)
     match = re.search(pattern, input_str)
-    if not match: return input_str
+    if not match:
+        return input_str  # Return the original string if no match is found
+
     def mm_to_cm(match):
-        if match.group(4) == 'mm':
-            mm_value = float(match.group(2))
-            cm_value = mm_value / 10.0
-            if cm_value.is_integer():
-                return f"{match.group(1)} {int(cm_value)} cm"
-            else:
-                return f"{match.group(1)} {cm_value:.1f} cm"
+        value = float(match.group(2))  # Extract the numeric value
+        unit = match.group(4)  # Extract the unit (mm or cm)
+        if unit == 'mm':
+            cm_value = value / 10.0  # Convert mm to cm
         else:
-            cm_value = float(match.group(2))
-            if cm_value.is_integer():
-                return f"{match.group(1)} {int(cm_value)} cm"
-            else:
-                return f"{match.group(1)} {cm_value:.1f} cm"
+            cm_value = value  # If already in cm, no conversion needed
+        # Return the value formatted to one decimal place if it's not an integer
+        return f"{cm_value:.1f} cm" if cm_value % 1 else f"{int(cm_value)} cm"
+
+    # Substitute matches with the converted value
     result = re.sub(pattern, mm_to_cm, input_str)
     return result
 
 
 def tip_format(text: str) -> str:
-    pattern = r'(đầu)\s+\w+\s+(\d+(\.\d+)?)\s*(mm)'
+    pattern = r'(đầu|kích thước)\s+(\d+(\.\d+)?)\s*(mm)'
     match = re.search(pattern, text)
     if not match:
         return text
@@ -81,7 +86,7 @@ def tip_format(text: str) -> str:
     return modified_text
 
 
-def tray_format(text : str) -> str:
+def box_format(text : str) -> str:
     pattern = r'(\d{3})\s*x\s*(\d{3})\s*x\s*(\d{2})\s*(mm)'
     match = re.search(pattern, text)
     if not match:
