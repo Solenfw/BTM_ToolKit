@@ -4,6 +4,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# irrelevant local files for running
+errand.py
 
 # irrelevant packages
 package-lock.json
