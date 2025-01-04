@@ -36,12 +36,17 @@ class SupportUtils:
     @staticmethod
     def save_up(code: str):
         """Saves selected code to a file."""
-        with open("selected_code.txt", 'a', encoding='utf-8') as file:
-            actual_code = regex.search(r'\d{2}-\d{3}-\d{2}-\d{2}', code)
-            if actual_code:
-                file.write(actual_code.group() + "\n")
-            else:
-                file.write(code + "\n")
+        try:
+            with open("selected_code.txt", 'a', encoding='utf-8') as file:
+                actual_code = regex.search(r'\d{2}-\d{3}-\d{2}-\d{2}', code)
+                if actual_code:
+                    file.write(actual_code.group() + "\n")
+                else:
+                    file.write(code + "\n")
+        except Exception as err:
+            print(f"ERROR : {err}")
+            with open("selected_code.txt", 'w', encoding='utf-8') as file:
+                pass
 
     @staticmethod
     def check_up(data : dict[str, (str, str)], mode : str = ''):
@@ -91,7 +96,8 @@ class SupportUtils:
                     print(f"Next :{len(codes_avail)+1} _ {lines[current_prd]}")
         except Exception as err:
             print(f"ERROR : {err}")
-
+            with open ('reference.txt', 'w', encoding='utf-8') as file:
+                pass
 
     @staticmethod
     def highlight_numbers(text: str, color: str, highlight_color: str) -> str:
@@ -118,8 +124,9 @@ class SupportUtils:
                 file.writelines(updated_codes)
             print(f"Old code replaced.")
         except Exception as err:
-                    print(f"ERROR : {err}")
-            
+            print(f"ERROR : {err}")
+            with open('selected_code.txt', 'r', encoding='utf-8') as file:
+                pass
 
 class AesculapUtils:
     def __init__(self):
