@@ -20,8 +20,7 @@ substring_replacements = {
     'Cốc đựng dung dịch' : 'cốc đo có chia vạch',
     'Cốc đo dung tích' : 'cốc đo có chia vạch',
     'hoặc tương đương' : '',
-    'Nhãn nhận biết' : ' nhãn định danh',
-    'Đệm giữ silicon' : 'tấm silicone',
+    'Đệm giữ silicon' : 'tấm silicone'
 }
 
 
