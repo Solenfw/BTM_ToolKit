@@ -70,7 +70,7 @@ def size_format(input_str: str) -> str:
         else:
             cm_value = value  # If already in cm, no conversion needed
         # Return the value formatted to one decimal place if it's not an integer
-        return f"{cm_value:.1f} cm" if cm_value % 1 else f"{int(cm_value)} cm"
+        return f"dài {cm_value:.1f} cm" if cm_value % 1 else f"{int(cm_value)} cm"
 
     # Substitute matches with the converted value
     result = re.sub(pattern, mm_to_cm, input_str)
