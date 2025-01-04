@@ -45,61 +45,100 @@ class SupportUtils:
                     file.write(code + "\n")
         except Exception as err:
             print(f"ERROR : {err}")
-            with open("selected_code.txt", 'w', encoding='utf-8') as file:
-                pass
 
     @staticmethod
-    def check_up(data : dict[str, (str, str)], mode : str = ''):
+    def check_up(data: dict[str, tuple[str, str]], mode: str = ''):
         """Checks the saved codes."""
+        selected_code_file = "selected_code.txt"
+
         try:
+            # Handle 'clear check' mode
             if mode == 'clear check':
-                with open("selected_code.txt", 'w', encoding='utf-8') as file:
+                with open(selected_code_file, 'w', encoding='utf-8') as file:
                     print("FILE cleared.")
-                    pass
-            with open("selected_code.txt", 'r', encoding='utf-8') as file:
+                return
+            
+            if mode == "open check":
+                os.system("notepad ./selected_code.txt")
+                return
+
+            # Ensure file exists
+            if not os.path.exists(selected_code_file):
+                open(selected_code_file, 'w', encoding='utf-8').close()
+
+            # Read selected codes
+            with open(selected_code_file, 'r', encoding='utf-8') as file:
                 codes = file.read().splitlines()
-            if len(codes) >= 1:
-                for index, code in enumerate(codes):
-                        flag = False
-                        for vietnamese, (english, original_code) in data.items():
-                            if original_code == code:
-                                print(f"{index+1} _ {Color.wrap_text(code, Color.YELLOW)} _ {Color.wrap_text(vietnamese, Color.WHITE)}")
-                                flag = True
-                        else:
-                            if not flag:
-                                print(f"{index+1} _ {code}")
-            else: 
+
+            # Handle empty file
+            if not codes:
                 print("File Empty!")
-        except Exception as err:
-            print(f"ERROR : {err}")
-            with open("selected_code.txt", 'w', encoding='utf-8') as file:
-                pass
+                return
+
+            # Display codes
+            for index, code in enumerate(codes, start=1):
+                # Check if the code exists in the data dictionary
+                matching_item = next(
+                    (vietnamese for vietnamese, (_, original_code) in data.items() if original_code == code), None
+                )
+                if matching_item:
+                    print(f"{index} _ {Color.wrap_text(code, Color.YELLOW)} _ {Color.wrap_text(matching_item, Color.WHITE)}")
+                else:
+                    print(f"{index} _ {code}")
+
+        except FileNotFoundError as err:
+            print(f"ERROR: {err}")
+            open(selected_code_file, 'w', encoding='utf-8').close()
 
     @staticmethod
-    def get_reference(mode : str = ""):
+    def get_reference(mode: str = ""):
+        reference_file = 'reference.txt'
+        selected_code_file = 'selected_code.txt'
+
         try:
+            # Clear reference file if mode is 'clear rf'
             if mode == 'clear rf':
-                with open ('reference.txt', 'w', encoding='utf-8') as file:
+                with open(reference_file, 'w', encoding='utf-8') as file:
                     print("Reference cleared.")
-                    pass
-            
-            with open ('reference.txt', 'r', encoding='utf-8') as file, open ('selected_code.txt', 'r', encoding='utf-8') as file2:
-                lines = file.read().splitlines()
-                codes_avail = file2.read().splitlines()
-                current_prd = len(codes_avail)
-                if not lines:
-                    command = input("File Empty! Fill up ? (Y) : ")
-                    if command == 'Y':
-                        os.system("notepad ./reference.txt")
-                if (len(codes_avail) == 0): 
-                    print(f"First item : {lines[0]}")
-                else:
-                    print(f"{len(codes_avail)} _ {lines[current_prd - 1]} - {codes_avail[current_prd - 1]}") # zero-indexed
-                    print(f"Next :{len(codes_avail)+1} _ {lines[current_prd]}")
-        except Exception as err:
-            print(f"ERROR : {err}")
-            with open ('reference.txt', 'w', encoding='utf-8') as file:
-                pass
+                return
+
+            if mode == 'open rf':
+                os.system("notepad ./reference.txt")
+                return
+
+            # Ensure both files exist
+            for file_name in [reference_file, selected_code_file]:
+                if not os.path.exists(file_name):
+                    open(file_name, 'w', encoding='utf-8').close()
+
+            # Read contents of files
+            with open(reference_file, 'r', encoding='utf-8') as ref_file:
+                lines = ref_file.read().splitlines()
+            with open(selected_code_file, 'r', encoding='utf-8') as code_file:
+                codes_avail = code_file.read().splitlines()
+
+            current_prd = len(codes_avail)
+
+            # Handle empty reference file
+            if not lines:
+                command = input("File is empty! Fill it up? (Y): ").strip().upper()
+                if command == 'Y':
+                    print("Opening reference file for editing...")
+                    os.system("notepad ./reference.txt")
+                return
+
+            # Display relevant information
+            if current_prd == 0:
+                print(f"First item: {lines[0]}")
+            elif current_prd < len(lines):
+                print(f"{current_prd} _ {lines[current_prd - 1]} - {codes_avail[current_prd - 1]}")
+                print(f"Next: {current_prd + 1} _ {lines[current_prd]}")
+            else:
+                print("All references have been used. Open reference file for more information.")
+
+        except FileNotFoundError as err:
+            print(f"ERROR: {err}")
+            open(reference_file, 'w', encoding='utf-8').close()
 
     @staticmethod
     def highlight_numbers(text: str, color: str, highlight_color: str) -> str:
@@ -127,8 +166,6 @@ class SupportUtils:
             print(f"Old code replaced.")
         except Exception as err:
             print(f"ERROR : {err}")
-            with open('selected_code.txt', 'r', encoding='utf-8') as file:
-                pass
 
 class AesculapUtils:
     def __init__(self):
