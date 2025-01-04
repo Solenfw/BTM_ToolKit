@@ -15,6 +15,7 @@ node_modules/
 # .txt files (for output storage)
 *.txt
 src/*.txt
+!requirements.txt
 
 # C extensions
 *.so
