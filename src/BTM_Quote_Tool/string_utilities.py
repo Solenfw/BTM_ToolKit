@@ -10,16 +10,13 @@ substring_replacements = {
     'kẹp cầm máu' : 'kẹp mạch máu',
     'kìm mang kim': 'kìm kẹp kim',
     'kẹp động mạch': 'kẹp mạch máu',
-    'cán dao mổ': 'cán dao phẫu thuật',
     'khay đựng hình quả thận': 'đĩa thận',
     'khay quả thận' : 'đĩa thận',
     'khay thận' : 'đĩa thận',
     'vòng giữ dụng cụ có cán vòng' : 'kim băng cài giữ dụng cụ',
     'bát tròn' : 'chén tròn',
-    'thìa nạo tử cung' : 'nạo tử cung',
     'Cốc đựng dung dịch' : 'cốc đo có chia vạch',
     'Cốc đo dung tích' : 'cốc đo có chia vạch',
-    'hoặc tương đương' : '',
     'Đệm giữ silicon' : 'tấm silicone'
 }
 
