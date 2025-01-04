@@ -72,6 +72,8 @@ class SupportUtils:
                 print("File Empty!")
         except Exception as err:
             print(f"ERROR : {err}")
+            with open("selected_code.txt", 'w', encoding='utf-8') as file:
+                pass
 
     @staticmethod
     def get_reference(mode : str = ""):
