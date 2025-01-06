@@ -30,8 +30,8 @@ def all_keywords_exist(keywords: list, check_string: str) -> bool:
 def string_cleaner(text: str) -> str:
     text = str(text)
     """Cleans and standardizes input text for comparison."""
-    if (not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text)):
-        text = re.sub(r'[^\w\.\\\/]', ' ', text).strip()             # Remove special characters
+    if not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text):
+        text = re.sub(r'[^\w\.\\\/°]', ' ', text).strip()             # Remove special characters
     elif len(text) <= 10:
          text = re.sub(r'[^\w\.\\\/-]', ' ', text).strip()  
     else:
