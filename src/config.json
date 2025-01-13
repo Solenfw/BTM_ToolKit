@@ -1,17 +1,18 @@
 {
-  "data_source": {
-    "family_name_file": "../data/raw_txt_data/family_name.txt",
-    "name_tag_file": "../data/raw_txt_data/name_tag.txt"
-  },
   "csv_source": {
     "kls_product_csv": "../data/csv_source/KLS_PRODUCT.csv",
     "aesculap_product_csv" : "../data/csv_source/AESCULAP_KLS_CONVERSION.csv",
     "integra_product_csv" : "../data/csv_source/INTEGRA_PRODUCT.csv"
   },
   "raw_text" : {
-    "eng_descript" : "../data/raw_txt_data/eng_descript.txt",
-    "family_name" : "../data/raw_txt_data/family_name.txt",
-    "name_tag" : "../data/raw_txt_data/name_tag.txt",
-    "productlines" : "../data/raw_txt_data/productlines.txt"
+    "eng_descript" : "../data/raw_text/eng_descript.txt",
+    "family_name" : "../data/raw_text/family_name.txt",
+    "name_tag" : "../data/raw_text/name_tag.txt",
+    "productlines" : "../data/raw_text/productlines.txt"
+  },
+  "source_text" : {
+    "kls_text" : "../data/source_text/KLS_PDF.txt",
+    "aesculap_text" : "../data/source_text/AESCULAP_PDF.txt",
+    "integra_text" : "../data/source_text/INTEGRA_PDF.txt"
   }
 }
