@@ -2,6 +2,7 @@
 For basic tasks. Supporting Surgical Instruments classification.
 ## Structure
 
+```
 BTM_ToolKit/
 ├── data/                 # Folder for all data files
 │   ├── raw/              # Raw data (original .csv, .txt files)
@@ -30,3 +31,4 @@ BTM_ToolKit/
 ├── setup.py              # Setup script for packaging (if needed)
 ├── README.md             # Project overview and documentation
 └── .gitignore            # Files and folders to exclude from Git
+```
