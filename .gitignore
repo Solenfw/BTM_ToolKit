@@ -16,7 +16,7 @@ node_modules/
 *.txt
 src/*.txt
 !requirements.txt
-!data/*.txt
+!data/source_text/*.txt
 
 # C extensions
 *.so
