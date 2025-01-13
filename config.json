@@ -11,8 +11,8 @@
     "productlines" : "data/raw_text/productlines.txt"
   },
   "source_text" : {
-    "kls_product" : "data/source_text/KLS_PDF.txt",
-    "aesculap_product" : "data/source_text/AESCULAP_PDF.txt",
-    "integra_product" : "data/source_text/INTEGRA_PDF.txt"
+    "kls_text" : "data/source_text/KLS_PDF.txt",
+    "aesculap_text" : "data/source_text/AESCULAP_PDF.txt",
+    "integra_text" : "data/source_text/INTEGRA_PDF.txt"
   }
 }

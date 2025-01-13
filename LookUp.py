@@ -15,6 +15,10 @@ source_file = Path(config['csv_source']['kls_product_csv'])
 source_for_aesculap = Path(config['csv_source']['aesculap_product_csv'])
 source_for_integra = Path(config['csv_source']['integra_product_csv'])
 
+kls_source_text = Path(config['source_text']['kls_text'])
+integra_source_text = Path(config['source_text']['integra_text'])
+aesculap_source_text = Path(config['source_text']['aesculap_text'])
+
 os.system("")
 class Color:
     CYAN = '\033[1;96m'
@@ -271,11 +275,11 @@ class KLSUtils:
 
 def process_command():
     # preloading all .txt resources.
-    with open("data/source_text/KLS_PDF_text.txt", "r", encoding='utf-8') as file:
+    with open(kls_source_text, "r", encoding='utf-8') as file:
         kls_catalog = file.read().lower()
-    with open("data/source_text/INTEGRA_PDF.txt", "r", encoding='utf-8') as file:
+    with open(integra_source_text, "r", encoding='utf-8') as file:
         integra_catalog = file.read().lower()
-    with open("data/source_text/AESCULAP_PDF.txt", "r", encoding='utf-8') as file:
+    with open(aesculap_source_text, "r", encoding='utf-8') as file:
         aesculap_catalog = file.read().lower()
 
     # pre-process raw data for Aesculap, KLS and Integra (csv)
