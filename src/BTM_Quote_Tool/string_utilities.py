@@ -10,18 +10,14 @@ substring_replacements = {
     'kẹp cầm máu' : 'kẹp mạch máu',
     'kìm mang kim': 'kìm kẹp kim',
     'kẹp động mạch': 'kẹp mạch máu',
-    'cán dao mổ': 'cán dao phẫu thuật',
     'khay đựng hình quả thận': 'đĩa thận',
     'khay quả thận' : 'đĩa thận',
     'khay thận' : 'đĩa thận',
     'vòng giữ dụng cụ có cán vòng' : 'kim băng cài giữ dụng cụ',
     'bát tròn' : 'chén tròn',
-    'thìa nạo tử cung' : 'nạo tử cung',
     'Cốc đựng dung dịch' : 'cốc đo có chia vạch',
     'Cốc đo dung tích' : 'cốc đo có chia vạch',
-    'hoặc tương đương' : '',
-    'Nhãn nhận biết' : ' nhãn định danh',
-    'Đệm giữ silicon' : 'tấm silicone',
+    'Đệm giữ silicon' : 'tấm silicone'
 }
 
 
@@ -34,8 +30,8 @@ def all_keywords_exist(keywords: list, check_string: str) -> bool:
 def string_cleaner(text: str) -> str:
     text = str(text)
     """Cleans and standardizes input text for comparison."""
-    if (not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text)):
-        text = re.sub(r'[^\w\.\\\/]', ' ', text).strip()             # Remove special characters
+    if not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text):
+        text = re.sub(r'[^\w\.\\\/°]', ' ', text).strip()             # Remove special characters
     elif len(text) <= 10:
          text = re.sub(r'[^\w\.\\\/-]', ' ', text).strip()  
     else:
@@ -70,7 +66,7 @@ def size_format(input_str: str) -> str:
         else:
             cm_value = value  # If already in cm, no conversion needed
         # Return the value formatted to one decimal place if it's not an integer
-        return f"{cm_value:.1f} cm" if cm_value % 1 else f"{int(cm_value)} cm"
+        return f"dài {cm_value:.1f} cm" if cm_value % 1 else f"{int(cm_value)} cm"
 
     # Substitute matches with the converted value
     result = re.sub(pattern, mm_to_cm, input_str)
