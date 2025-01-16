@@ -2,7 +2,8 @@ import regex
 import csv
 import os
 from pathlib import Path
-from string_utilities import string_cleaner
+from tabulate import tabulate
+from .string_utilities import string_cleaner
 
 
 class Color:
@@ -151,7 +152,7 @@ class SupportUtils:
     @staticmethod
     def highlight_numbers(text: str) -> str:
         """Highlights numbers within the text while keeping other text in color."""
-        return regex.sub(r'(\d+)', lambda match: f"{Color.GREEN}{match.group(0)}{Color.MAGENTA}", text)
+        return regex.sub(r'(\d+)', lambda match: f"{Color.MAGENTA}{match.group(0)}{Color.END}", text)
 
 
     @staticmethod
@@ -192,25 +193,37 @@ class AesculapUtils:
                     code = str(row[1]).strip()
                     alternative = str(row[2]).strip()
                     self.dataset[code] = (description, alternative)
-            if len(self.dataset) > 0:
-                print(f"Successfully loaded Aesculap's Data.")
             return self.dataset
         except Exception as e:
             print(f"Error processing Aesculap data: {e}")
 
 
-    @staticmethod
-    def search(keyword: str, dataset: dict):
+    
+    def search(self, keyword: str, dataset: dict):
         try:
             keyword_list = keyword.strip().lower().split()
             for code, (descript, alternative) in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, descript):
                     descript = SupportUtils.highlight_numbers(descript)
-                    print(f"_ {Color.wrap_text(code.ljust(len(code) + 5))}"
-                        f"{Color.wrap_text(SupportUtils.highlight_numbers(descript.ljust(len(descript) + 5)))}"
-                        f"{alternative}")
+                    self.display(code, (descript, alternative))
         except Exception as e:
             print(f"Error searching Aesculap data: {e}")
+    
+
+    @staticmethod
+    def display(code: str, info: tuple[str, str]):
+        try:
+            description = SupportUtils.highlight_numbers(info[0])
+            alternative = SupportUtils.highlight_numbers(info[1])
+            data = [
+                [description, alternative, code]  # One row with the columns
+            ]
+            # Define the headers for the table
+            headers = ["Description", "Alternative", "Code"]
+            # Use tabulate to display the data in table format
+            print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
+        except Exception as e:
+            print(f"Error displaying Aesculap data: {e}")
         
 
 class IntegraUtils:
@@ -236,8 +249,7 @@ class IntegraUtils:
             keyword_list = keyword.strip().lower().split()
             for code, description in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, description):
-                    print(f"{Color.wrap_text(code)}\t"
-                        f"{SupportUtils.highlight_numbers(description)}")
+                    print(f"{Color.wrap_text(code, Color.CYAN)}\t{SupportUtils.highlight_numbers(description)}")
         except Exception as e:
             print(f"Error searching Integra data: {e}")
 
@@ -264,15 +276,17 @@ class KLSUtils:
 
 
     @staticmethod
-    def display(code : str, info : tuple[str, str]):
+    def display(code: str, info: tuple[str, str]):
         try:
             vn_descript = SupportUtils.highlight_numbers(info[1])
             eng_descript = SupportUtils.highlight_numbers(info[0])
-            print(
-                    f"_ {vn_descript.ljust(len(vn_descript) + 5)}"
-                    f"{eng_descript.ljust(len(eng_descript) + 5)}"
-                    f"{code}"
-                )
+            data = [
+                [vn_descript, eng_descript, code]  # One row with the columns
+            ]
+            # Define the headers for the table
+            headers = ["Vietnamese Description", "English Description", "Code"]
+            # Use tabulate to display the data in table format
+            print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
         except Exception as e:
             print(f"Error displaying KLS data: {e}")
 
@@ -282,13 +296,11 @@ class KLSUtils:
             keyword = keyword.strip()
             for code, info in self.dataset.items():
                 if code == keyword:
-                    KLSUtils.display(code, info)
+                    self.display(code, info)
                     if self.dataset:
                         for AesculapCode, information in AesculapDataset.items():
                             if information[1] == keyword:
-                                print(f"Alternative AESCULAP code: {Color.wrap_text(AesculapCode)}")
-                    return True
-            return False
+                                print(f"Alternative AESCULAP code: {Color.wrap_text(AesculapCode, Color.YELLOW)}")
         except Exception as e:
             print(f"Error searching KLS data: {e}")
 

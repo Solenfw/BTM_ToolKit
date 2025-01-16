@@ -119,10 +119,10 @@ def main():
                     continue
 
                 if regex.fullmatch(r'\d{2}-\d{3}-\d{2}-\d{2}', keyword):
-                    if KLSUtils.SeachByCode(keyword, AesculapDataset):
+                    if datasets['Martin'].SeachByCode(keyword, AesculapDataset):
                         continue
 
-                matching_products = KLSUtils.search(keyword)
+                matching_products = datasets['Martin'].search(keyword)
 
                 if not matching_products:
                     keyword_upper = keyword.upper().strip()
