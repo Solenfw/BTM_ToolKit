@@ -33,13 +33,16 @@ def main():
     with open(AesculapSourceText, "r", encoding='utf-8') as file:
         AesculapCatalog = file.read().lower()
 
-    # pre-process raw data for Aesculap, KLS and Integra (csv)
-    AesObject = AesculapUtils()
-    AesculapDataset = AesObject.DataProcess(AesculapSourceFile)
-    IntegraObject = IntegraUtils()
-    IntegraDataset = IntegraObject.DataProcess(IntegraSourceFile)
-    MartinObject = KLSUtils()
-    MartinDataset = MartinObject.DataProcess(MartinSourceFile)
+    # Pre-process raw data for Aesculap, KLS, and Integra (csv)
+    datasets = {
+        'Aesculap': AesculapUtils(),
+        'Integra': IntegraUtils(),
+        'Martin': KLSUtils()
+    }
+
+    AesculapDataset = datasets['Aesculap'].DataProcess(AesculapSourceFile)
+    IntegraDataset = datasets['Integra'].DataProcess(IntegraSourceFile)
+    MartinDataset = datasets['Martin'].DataProcess(MartinSourceFile)
 
     # main action
     while True:
@@ -107,7 +110,7 @@ def main():
                     continue
 
                 if keyword == 'refresh':
-                    MartinDataset = MartinObject.DataProcess(MartinSourceFile)
+                    MartinDataset = datasets['Martin'].DataProcess(MartinSourceFile)
                     print("Data has been updated. Continuing . . ")
                     continue
 
