@@ -32,7 +32,7 @@ def string_cleaner(text: str) -> str:
     """Cleans and standardizes input text for comparison."""
     if not re.search(r'\d{2}-\d{3}-\d{2}-\d{2}', text):
         text = re.sub(r'[^\w\.\\\/°]', ' ', text).strip()             # Remove special characters
-    elif len(text) <= 10:
+    elif len(text) <= 10 or "load" in text:
          text = re.sub(r'[^\w\.\\\/-]', ' ', text).strip()  
     else:
         text = re.sub(r'[^\w-]', ' ', text).strip() 

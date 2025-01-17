@@ -1,7 +1,7 @@
 {
   "csv_source": {
     "kls_product_csv": "data/csv_source/KLS_PRODUCT.csv",
-    "aesculap_product_csv" : "data/csv_source/AESCULAP_KLS_CONVERSION.csv",
+    "aesculap_product_csv" : "data/csv_source/KLS_AESCULAP_CONVERSION.csv",
     "integra_product_csv" : "data/csv_source/INTEGRA_PRODUCT.csv"
   },
   "raw_text" : {
