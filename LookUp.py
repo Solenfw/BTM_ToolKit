@@ -129,7 +129,8 @@ def main():
                     
                     # keyword is an item of Aesculap 
                     if keyword_upper in AesculapDataset:
-                        KLSUtils.display(keyword_upper, AesculapDataset[keyword_upper])
+                        description = AesculapDataset[keyword_upper]
+                        print(f"{keyword_upper}  {description}")
                     
                     # keyword is an item of Integra
                     elif keyword_upper in IntegraDataset:
@@ -151,11 +152,9 @@ def main():
                     if len(matching_products.keys()) > 300:
                         confirm_input = input("More than 300 results. continue? (y) ")
                         if confirm_input == 'y':
-                            for code, info in matching_products.items():
-                                KLSUtils.display(code, info)
+                            KLSUtils.display(matching_products)
                     else:
-                        for code, info in matching_products.items():
-                                KLSUtils.display(code, info)
+                        KLSUtils.display(matching_products)
 
 
 if __name__ == '__main__':

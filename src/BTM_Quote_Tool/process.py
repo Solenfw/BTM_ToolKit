@@ -17,7 +17,12 @@ class Color:
     
     @staticmethod
     def wrap_text(text, color):
-        return f"{color}{text}{Color.END}"
+        return regex.sub(r'([^\d\.\s]+)', lambda match: f"{color}{match.group(0)}{Color.END}", text)
+    
+    @staticmethod
+    def highlight(text: str) -> str:
+        """Highlights numbers in MAGENTA within the text while keeping other text in color."""
+        return regex.sub(r'(\d+)', lambda match: f"{Color.MAGENTA}{match.group(0)}{Color.END}", text)
 
 
 class SupportUtils:
@@ -150,12 +155,6 @@ class SupportUtils:
 
 
     @staticmethod
-    def highlight_numbers(text: str) -> str:
-        """Highlights numbers within the text while keeping other text in color."""
-        return regex.sub(r'(\d+)', lambda match: f"{Color.MAGENTA}{match.group(0)}{Color.END}", text)
-
-
-    @staticmethod
     def all_keys_exist(keys: list, check_string: str) -> bool:
         """Returns True if all keys exist in the check string."""
         return all(key in check_string for key in keys)
@@ -276,16 +275,18 @@ class KLSUtils:
 
 
     @staticmethod
-    def display(code: str, info: tuple[str, str]):
+    def display(temporary: dict):
         try:
-            vn_descript = SupportUtils.highlight_numbers(info[1])
-            eng_descript = SupportUtils.highlight_numbers(info[0])
             data = [
-                [vn_descript, eng_descript, code]  # One row with the columns
+                [
+                    Color.wrap_text(Color.highlight(vn_descript), Color.GREEN),  # Highlight and colorize Vietnamese Description
+                    Color.wrap_text(Color.highlight(eng_descript), Color.CYAN),  # Highlight and colorize English Description
+                    Color.wrap_text(code, Color.YELLOW)  # Colorize the Code
+                ]
+                for code, (eng_descript, vn_descript) in temporary.items()
             ]
-            # Define the headers for the table
+            
             headers = ["Vietnamese Description", "English Description", "Code"]
-            # Use tabulate to display the data in table format
             print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
         except Exception as e:
             print(f"Error displaying KLS data: {e}")
@@ -293,14 +294,16 @@ class KLSUtils:
 
     def SeachByCode(self, keyword: str, AesculapDataset: dict):
         try:
+            temporary = {}
             keyword = keyword.strip()
             for code, info in self.dataset.items():
                 if code == keyword:
-                    self.display(code, info)
+                    temporary[code] = info
                     if self.dataset:
                         for AesculapCode, information in AesculapDataset.items():
                             if information[1] == keyword:
                                 print(f"Alternative AESCULAP code: {Color.wrap_text(AesculapCode, Color.YELLOW)}")
+            self.display(temporary)
         except Exception as e:
             print(f"Error searching KLS data: {e}")
 
