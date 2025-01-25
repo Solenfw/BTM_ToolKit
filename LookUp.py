@@ -101,12 +101,12 @@ def main():
                     continue
 
                 if keyword.endswith('sculap'):
-                    AesculapUtils.search(keyword, AesculapDataset)
+                    datasets['Aesculap'].search(keyword, AesculapDataset)
                     continue
 
                 if keyword.endswith('integra'):
                     product = keyword.replace('integra', '').strip()
-                    IntegraUtils.search(product, IntegraDataset)
+                    datasets['Integra'].search(product, IntegraDataset)
                     continue
 
                 if keyword == 'refresh':
