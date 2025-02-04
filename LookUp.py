@@ -34,15 +34,15 @@ def main():
         AesculapCatalog = file.read().lower()
 
     # Pre-process raw data for Aesculap, KLS, and Integra (csv)
-    datasets = {
+    objects = {
         'Aesculap': AesculapUtils(),
         'Integra': IntegraUtils(),
         'Martin': KLSUtils()
     }
 
-    AesculapDataset = datasets['Aesculap'].DataProcess(AesculapSourceFile)
-    IntegraDataset = datasets['Integra'].DataProcess(IntegraSourceFile)
-    MartinDataset = datasets['Martin'].DataProcess(MartinSourceFile)
+    AesculapDataset = objects['Aesculap'].DataProcess(AesculapSourceFile)
+    IntegraDataset = objects['Integra'].DataProcess(IntegraSourceFile)
+    MartinDataset = objects['Martin'].DataProcess(MartinSourceFile)
 
     # main action
     while True:
@@ -101,16 +101,19 @@ def main():
                     continue
 
                 if keyword.endswith('sculap'):
-                    AesculapUtils.search(keyword, AesculapDataset)
+                    keyword = keyword.replace('sculap', '').strip()
+                    temp = objects['Aesculap'].search(keyword, AesculapDataset)
+                    if temp:
+                        objects['Aesculap'].display(temp)
                     continue
 
                 if keyword.endswith('integra'):
                     product = keyword.replace('integra', '').strip()
-                    IntegraUtils.search(product, IntegraDataset)
+                    objects['Integra'].search(product, IntegraDataset)
                     continue
 
                 if keyword == 'refresh':
-                    MartinDataset = datasets['Martin'].DataProcess(MartinSourceFile)
+                    MartinDataset = objects['Martin'].DataProcess(MartinSourceFile)
                     print("Data has been updated. Continuing . . ")
                     continue
 
@@ -119,18 +122,18 @@ def main():
                     continue
 
                 if regex.fullmatch(r'\d{2}-\d{3}-\d{2}-\d{2}', keyword):
-                    if datasets['Martin'].SeachByCode(keyword, AesculapDataset):
+                    if objects['Martin'].SearchByCode(keyword, AesculapDataset):
                         continue
 
-                matching_products = datasets['Martin'].search(keyword)
+                matching_products = objects['Martin'].search(keyword)
 
                 if not matching_products:
                     keyword_upper = keyword.upper().strip()
                     
                     # keyword is an item of Aesculap 
-                    if keyword_upper in AesculapDataset:
-                        description = AesculapDataset[keyword_upper]
-                        print(f"{keyword_upper}  {description}")
+                    if keyword_upper in AesculapDataset.keys():
+                        temp = {keyword_upper: AesculapDataset[keyword_upper]}
+                        objects['Aesculap'].display(temp)
                     
                     # keyword is an item of Integra
                     elif keyword_upper in IntegraDataset:
@@ -138,7 +141,7 @@ def main():
                         print(f"{keyword_upper}  {description}")
 
                     # Search for keyword among the .txt resources from Catalogs.
-                    if keyword in MartinCatalog:
+                    elif keyword in MartinCatalog:
                         print("Look up the KLS Catalog.")
                     elif keyword in IntegraCatalog:
                         print("Look up the INTEGRA catalog.")
@@ -149,12 +152,13 @@ def main():
                         if input("Re-enter keyword or 0 to terminate: ") == '0':
                             sys.exit(0)
                 else:
+                    keys = keyword.split()
                     if len(matching_products.keys()) > 300:
                         confirm_input = input("More than 300 results. continue? (y) ")
                         if confirm_input == 'y':
-                            KLSUtils.display(matching_products)
+                            KLSUtils.display(matching_products, keys)
                     else:
-                        KLSUtils.display(matching_products)
+                        KLSUtils.display(matching_products, keys)
 
 
 if __name__ == '__main__':

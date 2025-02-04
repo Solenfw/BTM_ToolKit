@@ -16,13 +16,19 @@ class Color:
     WHITE = '\033[37m'
     
     @staticmethod
-    def wrap_text(text, color):
+    def wrap_text(text, color, keywords=None, whole=False):
+        if whole:
+            return f"{color}{text}{Color.END}"
+        if keywords is not None:
+            for keyword in keywords:
+                text = regex.sub(rf'({keyword})', lambda match: f"{color}{match.group(0)}{Color.END}", text)
+                return f"{color}{text}{Color.END}"
         return regex.sub(r'([^\d\.\s]+)', lambda match: f"{color}{match.group(0)}{Color.END}", text)
     
     @staticmethod
     def highlight(text: str) -> str:
         """Highlights numbers in MAGENTA within the text while keeping other text in color."""
-        return regex.sub(r'(\d+)', lambda match: f"{Color.MAGENTA}{match.group(0)}{Color.END}", text)
+        return regex.sub(r'(\d+(\.\d+)?)', lambda match: f"{Color.MAGENTA}{match.group(1)}{Color.END}", text)
 
 
 class SupportUtils:
@@ -188,8 +194,8 @@ class AesculapUtils:
                 csv_reader = csv.reader(csv_file)
                 next(csv_reader)
                 for row in csv_reader:
-                    description = string_cleaner(str(row[1]).strip().lower() or "none")
-                    code = str(row[1]).strip()
+                    code = str(row[0]).strip()
+                    description = string_cleaner(row[1]) or "No description"
                     alternative = str(row[2]).strip()
                     self.dataset[code] = (description, alternative)
             return self.dataset
@@ -200,25 +206,29 @@ class AesculapUtils:
     
     def search(self, keyword: str, dataset: dict):
         try:
-            keyword_list = keyword.strip().lower().split()
+            temporary = {}
+            keyword_list = keyword.split()
             for code, (descript, alternative) in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, descript):
-                    descript = SupportUtils.highlight_numbers(descript)
-                    self.display(code, (descript, alternative))
+                    temporary[code] = (descript, alternative)
+            return temporary
         except Exception as e:
             print(f"Error searching Aesculap data: {e}")
     
 
     @staticmethod
-    def display(code: str, info: tuple[str, str]):
+    def display(tempo : dict[str, tuple[str, str]], keywords: list[str] = None):
         try:
-            description = SupportUtils.highlight_numbers(info[0])
-            alternative = SupportUtils.highlight_numbers(info[1])
             data = [
-                [description, alternative, code]  # One row with the columns
+                [
+                    Color.wrap_text(code, Color.CYAN, None, True), 
+                    Color.wrap_text(Color.highlight(description), Color.GREEN, keywords, True),  
+                    Color.wrap_text(alternative, Color.YELLOW, None, True)  
+                ]
+                for code, (description, alternative) in tempo.items()
             ]
             # Define the headers for the table
-            headers = ["Description", "Alternative", "Code"]
+            headers = ['Code', 'Description', 'Alternative']
             # Use tabulate to display the data in table format
             print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
         except Exception as e:
@@ -243,12 +253,12 @@ class IntegraUtils:
         return self.dataset
 
 
-    def search(keyword: str, dataset : dict):
+    def search(self, keyword: str, dataset : dict):
         try:
             keyword_list = keyword.strip().lower().split()
             for code, description in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, description):
-                    print(f"{Color.wrap_text(code, Color.CYAN)}\t{SupportUtils.highlight_numbers(description)}")
+                    print(f"{Color.wrap_text(code, Color.CYAN, None, True)}\t{Color.highlight(description)}")
         except Exception as e:
             print(f"Error searching Integra data: {e}")
 
@@ -275,13 +285,13 @@ class KLSUtils:
 
 
     @staticmethod
-    def display(temporary: dict):
+    def display(temporary: dict, keywords: list[str] = None):
         try:
             data = [
                 [
-                    Color.wrap_text(Color.highlight(vn_descript), Color.GREEN),  # Highlight and colorize Vietnamese Description
-                    Color.wrap_text(Color.highlight(eng_descript), Color.CYAN),  # Highlight and colorize English Description
-                    Color.wrap_text(code, Color.YELLOW)  # Colorize the Code
+                    Color.wrap_text(Color.highlight(vn_descript), Color.GREEN, keywords),  # Highlight and colorize Vietnamese Description
+                    Color.wrap_text(Color.highlight(eng_descript), Color.CYAN, keywords),  # Highlight and colorize English Description
+                    Color.wrap_text(code, Color.YELLOW, keywords)  # Colorize the Code
                 ]
                 for code, (eng_descript, vn_descript) in temporary.items()
             ]
@@ -292,18 +302,28 @@ class KLSUtils:
             print(f"Error displaying KLS data: {e}")
 
 
-    def SeachByCode(self, keyword: str, AesculapDataset: dict):
+    def SearchByCode(self, keyword: str, AesculapDataset: dict):
         try:
+            if not self.dataset:
+                print("The dataset is empty. Please process data before searching.")
+                return
+            
             temporary = {}
-            keyword = keyword.strip()
+            keyword = keyword.strip().lower()  # Normalize keyword for case-insensitive matching
+
+            # Search for the keyword in self.dataset
             for code, info in self.dataset.items():
-                if code == keyword:
+                if code.lower() == keyword:
                     temporary[code] = info
-                    if self.dataset:
-                        for AesculapCode, information in AesculapDataset.items():
-                            if information[1] == keyword:
-                                print(f"Alternative AESCULAP code: {Color.wrap_text(AesculapCode, Color.YELLOW)}")
-            self.display(temporary)
+
+                    # Search for alternatives in AesculapDataset
+                    for aesculap_code, information in AesculapDataset.items():
+                        if len(information) > 1 and information[1].lower() == keyword:
+                            print(f"Alternative AESCULAP code: {Color.wrap_text(aesculap_code, Color.YELLOW, None, True)}")
+                            break  # Exit the loop early when a match is found
+            
+            # Display results or notify if no matches
+            self.display(temporary, keywords=[keyword]) if temporary else print("No matching code found.")
         except Exception as e:
             print(f"Error searching KLS data: {e}")
 
