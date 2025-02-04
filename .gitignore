@@ -6,7 +6,7 @@ __pycache__/
 
 # irrelevant local files for running
 errand.py
-src/web_automation
+web_automation
 
 # irrelevant packages
 package-lock.json
