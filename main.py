@@ -5,10 +5,11 @@ import os
 from pathlib import Path
 
 os.system("")
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 # Determine the base directory
 if getattr(sys, 'frozen', False):
-    base_dir = sys._MEIPASS  # Temporary folder where PyInstaller extracts files
+    base_dir = os.path.abspath(os.path.join(sys._MEIPASS, "..", "..", ".."))  # Temporary folder where PyInstaller extracts files
 else:
     base_dir = os.path.abspath(os.path.dirname(__file__))
 
