@@ -90,7 +90,7 @@ def main():
         print("Data has been updated. Continuing . . ")
 
     def handle_clear():
-        os.system('cls')
+        os.system('clear')
 
     def handle_search_by_code(keyword):
         return objects['Martin'].SearchByCode(keyword, AesculapDataset)
