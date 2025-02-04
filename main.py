@@ -3,13 +3,14 @@ import csv
 import sys
 import os
 from pathlib import Path
+import traceback
 
 os.system("")
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 # Determine the base directory
 if getattr(sys, 'frozen', False):
-    base_dir = os.path.abspath(os.path.join(sys._MEIPASS, "..", "..", ".."))  # Temporary folder where PyInstaller extracts files
+    base_dir = sys._MEIPASS  # Temporary folder where PyInstaller extracts files
 else:
     base_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -185,4 +186,10 @@ def main():
 
 if __name__ == '__main__':
     print("Source file : ",MartinSourceFile)
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"ERROR: {e}")
+        traceback.print_exc()
+        input("Press any key to exit.")
+        sys.exit(1)
