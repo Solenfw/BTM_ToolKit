@@ -5,13 +5,24 @@ import os
 from pathlib import Path
 
 os.system("")
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+
+# Determine the base directory
+if getattr(sys, 'frozen', False):
+    base_dir = sys._MEIPASS  # Temporary folder where PyInstaller extracts files
+else:
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Ensure correct paths
+sys.path.insert(0, os.path.join(base_dir, "src"))
+
+# Set the correct path for config.json
+config_path = os.path.join(base_dir, "config.json")
 
 # Import custom module
 from BTM_Quote_Tool import load_config, string_cleaner, AesculapUtils, IntegraUtils, KLSUtils, Color, SupportUtils
 
 # loading up data
-config = load_config()
+config = load_config(config_path)
 MartinSourceFile = Path(config['csv_source']['kls_product_csv'])
 AesculapSourceFile = Path(config['csv_source']['aesculap_product_csv'])
 IntegraSourceFile = Path(config['csv_source']['integra_product_csv'])
@@ -90,7 +101,7 @@ def main():
         print("Data has been updated. Continuing . . ")
 
     def handle_clear():
-        os.system('clear')
+        os.system('cls')
 
     def handle_search_by_code(keyword):
         return objects['Martin'].SearchByCode(keyword, AesculapDataset)
