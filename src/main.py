@@ -6,32 +6,36 @@ from pathlib import Path
 import traceback
 
 os.system("")
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
-
-# Determine the base directory
-if getattr(sys, 'frozen', False):
-    base_dir = sys._MEIPASS  # Temporary folder where PyInstaller extracts files
-else:
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-
-# Ensure correct paths
-sys.path.insert(0, os.path.join(base_dir, "src"))
-
-# Set the correct path for config.json
-config_path = os.path.join(base_dir, "config.json")
 
 # Import custom module
 from BTM_Quote_Tool import load_config, string_cleaner, AesculapUtils, IntegraUtils, KLSUtils, Color, SupportUtils
 
-# loading up data
-config = load_config(config_path)
-MartinSourceFile = Path(config['csv_source']['kls_product_csv'])
-AesculapSourceFile = Path(config['csv_source']['aesculap_product_csv'])
-IntegraSourceFile = Path(config['csv_source']['integra_product_csv'])
 
-MartinSourceText = Path(config['source_text']['kls_text'])
-IntegraSourceText = Path(config['source_text']['integra_text'])
-AesculapSourceText = Path(config['source_text']['aesculap_text'])
+# Determine the correct base directory
+if getattr(sys, 'frozen', False):  
+    base_dir = sys._MEIPASS  # PyInstaller extracted folder
+else:
+    base_dir = os.path.abspath(os.path.dirname(__file__))  # Normal script path
+
+# Path to config.json (already correct)
+config_path = os.path.join(base_dir, "config.json")
+
+# Load JSON config
+config = load_config(config_path)
+
+# 🔥 Fix: Convert relative paths from config.json to absolute paths
+def get_absolute_path(relative_path):
+    """Convert relative paths from config.json into absolute paths."""
+    return os.path.join(base_dir, relative_path.strip(" ./\\"))  # Strip unnecessary `.` or `..`
+
+# 🔹 Use the helper function to fix all paths
+MartinSourceFile = Path(get_absolute_path(config['csv_source']['kls_product_csv']))
+AesculapSourceFile = Path(get_absolute_path(config['csv_source']['aesculap_product_csv']))
+IntegraSourceFile = Path(get_absolute_path(config['csv_source']['integra_product_csv']))
+
+MartinSourceText = Path(get_absolute_path(config['source_text']['kls_text']))
+IntegraSourceText = Path(get_absolute_path(config['source_text']['integra_text']))
+AesculapSourceText = Path(get_absolute_path(config['source_text']['aesculap_text']))
 
 
 # Main function
