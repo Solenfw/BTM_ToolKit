@@ -29,13 +29,13 @@ def get_absolute_path(relative_path):
     return os.path.join(base_dir, relative_path.strip(" ./\\"))  # Strip unnecessary `.` or `..`
 
 # 🔹 Use the helper function to fix all paths
-MartinSourceFile = Path(get_absolute_path(config['csv_source']['kls_product_csv']))
-AesculapSourceFile = Path(get_absolute_path(config['csv_source']['aesculap_product_csv']))
-IntegraSourceFile = Path(get_absolute_path(config['csv_source']['integra_product_csv']))
+MartinSourceFile = Path(config['csv_source']['kls_product_csv'])
+AesculapSourceFile = Path(config['csv_source']['aesculap_product_csv'])
+IntegraSourceFile = Path(config['csv_source']['integra_product_csv'])
 
-MartinSourceText = Path(get_absolute_path(config['source_text']['kls_text']))
-IntegraSourceText = Path(get_absolute_path(config['source_text']['integra_text']))
-AesculapSourceText = Path(get_absolute_path(config['source_text']['aesculap_text']))
+MartinSourceText = Path(config['source_text']['kls_text'])
+IntegraSourceText = Path(config['source_text']['integra_text'])
+AesculapSourceText = Path(config['source_text']['aesculap_text'])
 
 
 # Main function
