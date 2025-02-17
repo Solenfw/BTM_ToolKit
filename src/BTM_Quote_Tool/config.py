@@ -8,15 +8,27 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from .string_utilities import string_cleaner
 
-def load_config(config_file="config.json") -> object:
+def load_config(config_file=""):
     """Loads PATH configuration from a JSON file."""
+    # If no config file is specified, look for a .json file in the current directory
+    if not config_file:
+        json_files = [file for file in os.listdir('.') if file.endswith('.json')]
+        if not json_files:
+            print("No JSON configuration file found.")
+            return None
+        # Automatically select the first .json file found
+        config_file = json_files[0]
+        print(f"No file specified. Using {config_file} as the config file.")
+
     try:
         with open(config_file, 'r', encoding='utf-8') as file:
-            print("successfully loaded PATHs from Json.")
+            print(f"Successfully loaded PATHs from {config_file}.")
             return json.load(file)
     except FileNotFoundError as e:
         print(f"Error loading config: {e}")
-        return None
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON format in {config_file}: {e}")
+    return None
 
 
 def is_file_empty(file_path):
