@@ -11,6 +11,7 @@ web_automation/
 # irrelevant packages
 package-lock.json
 package.json
+errandConfig.json
 node_modules/
 
 # .txt files (for output storage)
