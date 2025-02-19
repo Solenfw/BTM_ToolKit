@@ -141,7 +141,7 @@ class SupportUtils:
 
             # Handle empty reference file
             if not lines:
-                command = input("File is empty! Fill it up? (y): ").strip().upper()
+                command = input("File is empty! Fill it up? (y): ").strip()
                 if command == 'y':
                     print("Opening reference file for editing...")
                     os.system("notepad ./reference.txt")
