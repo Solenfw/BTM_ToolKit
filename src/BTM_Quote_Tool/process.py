@@ -98,7 +98,7 @@ class SupportUtils:
             # Display codes
             for index, code in enumerate(codes, start=1):
                 matching_item = next(
-                    (vietnamese for vietnamese, (_, original_code) in data.items() if original_code == code), None
+                    (vietnamese for vietnamese, (_, original_code) in data.items() if original_code == code), "None"
                 )
                 if matching_item:
                     print(f"{index} _ {Color.wrap_text(code, Color.YELLOW)} _ {Color.wrap_text(matching_item, Color.WHITE)}")
