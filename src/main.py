@@ -40,6 +40,7 @@ AesculapSourceText = Path(config['source_text']['aesculap_text'])
 
 # Main function
 def main():
+    loop_data = [[]]
     # preloading all .txt resources.
     with open(MartinSourceText, "r", encoding='utf-8') as file:
         MartinCatalog = file.read().lower()
@@ -90,6 +91,11 @@ def main():
         keyword = keyword.replace('load', '').strip()
         SupportUtils.save(keyword)
         print("Product's code has been loaded.")
+    
+    def handle_pick(keyword, dataset : list[list]):
+        keyword = keyword.replace('pick', '').strip()
+        SupportUtils.pick(keyword, dataset)
+        print("Product's code has been picked.")
 
     def handle_sculap(keyword):
         keyword = keyword.replace('sculap', '').strip()
@@ -139,7 +145,8 @@ def main():
                 if confirm_input == 'y':
                     KLSUtils.display(matching_products, keys)
             else:
-                KLSUtils.display(matching_products, keys)
+                temp = KLSUtils.display(matching_products, keys)
+                return temp
 
     keyword_handlers = {
         'help': handle_help,
@@ -151,7 +158,6 @@ def main():
 
     while True:
         command = input("Enter any key to start, 0 to terminate, 'help' to open guide: ").strip()
-
         if command == 'help':
             handle_help()
         elif command == '0':
@@ -159,6 +165,7 @@ def main():
         else:
             print(f"Report:\nNumber of items acquired: {len(MartinDataset)}\nProceeding. . .")
 
+            
             while True:
                 keyword = input(Color.wrap_text("Enter keyword: ", Color.RED))
                 keyword = string_cleaner(keyword)
@@ -169,7 +176,7 @@ def main():
 
                 if keyword.endswith('rf'):
                     handle_reference(keyword)
-                elif keyword.endswith('check'):
+                elif keyword.endswith('code'):
                     handle_check(keyword)
                 elif keyword.endswith('inch'):
                     handle_inch(keyword)
@@ -177,6 +184,8 @@ def main():
                     handle_replace(keyword)
                 elif keyword.endswith('load'):
                     handle_load(keyword)
+                elif keyword.endswith('pick'):
+                    handle_pick(keyword, loop_data)    
                 elif keyword.endswith('sculap'):
                     handle_sculap(keyword)
                 elif keyword.endswith('integra'):
@@ -185,7 +194,7 @@ def main():
                     if handle_search_by_code(keyword):
                         continue
                 else:
-                    handle_search(keyword)
+                    loop_data = handle_search(keyword)
 
 
 if __name__ == '__main__':

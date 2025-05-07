@@ -14,21 +14,42 @@ class Color:
     END = '\033[0m'
     GREEN = '\033[1;92m'
     WHITE = '\033[37m'
-    
+
     @staticmethod
-    def wrap_text(text, color, keywords=None, whole=False):
+    def wrap_text(text_input, color_code, keywords=None, whole=False):
+        # Ensure text_input is a string, as highlight might return non-string if not careful
+        text = str(text_input)
+
         if whole:
-            return f"{color}{text}{Color.END}"
-        if keywords is not None:
+            return f"{color_code}{text}{Color.END}"
+
+        if keywords and isinstance(keywords, list) and len(keywords) > 0:
+            processed_text = text
             for keyword in keywords:
-                text = regex.sub(rf'({keyword})', lambda match: f"{color}{match.group(0)}{Color.END}", text)
-                return f"{color}{text}{Color.END}"
-        return regex.sub(r'([^\d\.\s]+)', lambda match: f"{color}{match.group(0)}{Color.END}", text)
-    
+                if not keyword:  # Skip empty keywords
+                    continue
+                # Escape keyword for regex to treat special characters literally
+                # Use regex.IGNORECASE for case-insensitive matching
+                # Apply color_code ONLY to the matched keyword
+                processed_text = regex.sub(
+                    rf'({regex.escape(str(keyword))})',
+                    lambda match: f"{color_code}{match.group(1)}{Color.END}",
+                    processed_text,
+                    flags=regex.IGNORECASE  # Add case-insensitivity
+                )
+            return processed_text # Return text with only keywords colored
+        else:
+            # This is the original Path C: if no keywords, color non-digit/dot/space sequences.
+            # You might want to reconsider if this is the desired fallback.
+            # If text should remain uncolored if no keywords, then just 'return text'
+            return regex.sub(r'([^\d\.\s]+)', lambda match: f"{color_code}{match.group(0)}{Color.END}", text)
+
     @staticmethod
     def highlight(text: str) -> str:
-        """Highlights numbers in MAGENTA within the text while keeping other text in color."""
-        return regex.sub(r'(\d+(\.\d+)?)', lambda match: f"{Color.MAGENTA}{match.group(1)}{Color.END}", text)
+        """Highlights numbers in MAGENTA within the text."""
+        # Ensure text is a string
+        text_str = str(text)
+        return regex.sub(r'(\d+(\.\d+)?)', lambda match: f"{Color.MAGENTA}{match.group(1)}{Color.END}", text_str)
 
 
 class SupportUtils:
@@ -38,9 +59,9 @@ class SupportUtils:
         print(
             "\nCommands:\n"
             "1. 'end' to terminate the program.\n"
-            "2. 'check' to display selected codes.\n"
-            "3. 'clear check' to clear selected codes.\n"
-            "4. 'open check' to open selected codes file.\n"
+            "2. 'code' to display selected codes.\n"
+            "3. 'clear code' to clear selected codes.\n"
+            "4. 'open code' to open selected codes file.\n"
             "5. 'clear rf' to clear reference file.\n"
             "6. 'open rf' to open reference file.\n"
             "7. 'replace' to replace a code.\n"
@@ -65,6 +86,28 @@ class SupportUtils:
                     file.write(code + "\n")
         except Exception as err:
             print(f"ERROR : {err}")
+    
+
+    @staticmethod
+    def pick(idx: str, dataset : list[list]):
+        index = int(idx)
+        selected_code_file = "selected_code.txt"
+        try:
+            if not os.path.exists(selected_code_file):
+                open(selected_code_file, 'w', encoding='utf-8').close()
+            
+            with open(selected_code_file, 'a', encoding='utf-8') as file:
+                    code = dataset[index - 1][3]
+                    code = code.replace("1;33m", "")
+                    code = code.replace("0m", "")
+                    file.write(code + "\n")
+        except ValueError as err:
+            print(f"ERROR : {err}. Please enter a valid number.")
+        except IndexError as err:
+            print(f"ERROR : {err}. Please enter a number between 1 and {len(dataset)}.")
+        except Exception as err:
+            print(f"ERROR : {err}")
+
 
     @staticmethod
     def check(data: dict[str, tuple[str, str]], mode: str = ''):
@@ -72,13 +115,13 @@ class SupportUtils:
         selected_code_file = "selected_code.txt"
         try:
             # clear file content
-            if mode == 'clear check':
+            if mode == 'clear code':
                 with open(selected_code_file, 'w', encoding='utf-8') as file:
                     print("FILE cleared.")
                 return
             
             # open file in notepad
-            if mode == "open check":
+            if mode == "open code":
                 os.system("notepad ./selected_code.txt")
                 return
 
@@ -219,18 +262,18 @@ class AesculapUtils:
     @staticmethod
     def display(tempo : dict[str, tuple[str, str]], keywords: list[str] = None):
         try:
-            data = [
+            initial_data = [
                 [
-                    Color.wrap_text(code, Color.CYAN, None, True), 
-                    Color.wrap_text(Color.highlight(description), Color.GREEN, keywords, True),  
-                    Color.wrap_text(alternative, Color.YELLOW, None, True)  
+                    index + 1,  # Index of the code
+                    Color.wrap_text(code, Color.CYAN, keywords, whole=True),  # Highlight and colorize Code
+                    Color.wrap_text(description, Color.GREEN, keywords),  # Highlight and colorize Description
+                    Color.wrap_text(alternative, Color.YELLOW, None, True)  # Colorize the Alternative
                 ]
-                for code, (description, alternative) in tempo.items()
+                for index, (code, (description, alternative)) in enumerate(tempo.items())
             ]
             # Define the headers for the table
-            headers = ['Code', 'Description', 'Alternative']
-            # Use tabulate to display the data in table format
-            print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
+            headers = ['Idx','Code', 'Description', 'Alternative']
+            print(tabulate(initial_data, headers=headers, tablefmt="fancy_grid"))
         except Exception as e:
             print(f"Error displaying Aesculap data: {e}")
         
@@ -287,17 +330,19 @@ class KLSUtils:
     @staticmethod
     def display(temporary: dict, keywords: list[str] = None):
         try:
-            data = [
-                [
+            initial_data = [
+                 [
+                    index + 1,  # Index of the code
                     Color.wrap_text(Color.highlight(vn_descript), Color.GREEN, keywords),  # Highlight and colorize Vietnamese Description
                     Color.wrap_text(Color.highlight(eng_descript), Color.CYAN, keywords),  # Highlight and colorize English Description
-                    Color.wrap_text(code, Color.YELLOW, keywords)  # Colorize the Code
+                    Color.wrap_text(code, Color.YELLOW, keywords, whole=True)  # Colorize the Code
                 ]
-                for code, (eng_descript, vn_descript) in temporary.items()
+                for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items())
             ]
             
-            headers = ["Vietnamese Description", "English Description", "Code"]
-            print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
+            headers = ['Idx',"Vietnamese Description", "English Description", "Code"]
+            print(tabulate(initial_data, headers=headers, tablefmt="fancy_grid"))
+            return initial_data
         except Exception as e:
             print(f"Error displaying KLS data: {e}")
 
