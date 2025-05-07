@@ -93,7 +93,7 @@ def main():
         print("Product's code has been loaded.")
     
     def handle_pick(keyword, dataset : list[list]):
-        keyword = keyword.replace('pick', '').strip()
+        keyword = keyword.replace('get', '').strip()
         SupportUtils.pick(keyword, dataset)
         print("Product's code has been picked.")
 
@@ -184,7 +184,7 @@ def main():
                     handle_replace(keyword)
                 elif keyword.endswith('load'):
                     handle_load(keyword)
-                elif keyword.endswith('pick'):
+                elif keyword.endswith('get'):
                     handle_pick(keyword, loop_data)    
                 elif keyword.endswith('sculap'):
                     handle_sculap(keyword)
