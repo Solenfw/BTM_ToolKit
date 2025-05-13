@@ -33,6 +33,6 @@ for i in range(90):
     search_box.send_keys(Keys.RETURN)
     
     # Wait a bit to avoid detection
-    time.sleep(random.uniform(5, 10))
+    time.sleep(random.uniform(7, 10))
 
 driver.quit()
