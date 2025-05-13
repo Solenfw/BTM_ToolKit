@@ -98,8 +98,7 @@ class SupportUtils:
             
             with open(selected_code_file, 'a', encoding='utf-8') as file:
                     code = dataset[index - 1][3]
-                    code = code.replace("1;33m", "")
-                    code = code.replace("0m", "")
+                    code = regex.search(r'\d{2}-\d{3}-\d{2}-\d{2}', code).group(0)
                     file.write(code + "\n")
         except ValueError as err:
             print(f"ERROR : {err}. Please enter a valid number.")
