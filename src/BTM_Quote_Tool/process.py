@@ -332,8 +332,8 @@ class KLSUtils:
             initial_data = [
                  [
                     index + 1,  # Index of the code
-                    Color.wrap_text(Color.highlight(vn_descript), Color.GREEN, keywords),  # Highlight and colorize Vietnamese Description
-                    Color.wrap_text(Color.highlight(eng_descript), Color.CYAN, keywords),  # Highlight and colorize English Description
+                    Color.wrap_text(vn_descript, Color.GREEN, keywords),  # Highlight and colorize Vietnamese Description
+                    Color.wrap_text(eng_descript, Color.CYAN, keywords),  # Highlight and colorize English Description
                     Color.wrap_text(code, Color.YELLOW, keywords, whole=True)  # Colorize the Code
                 ]
                 for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items())
