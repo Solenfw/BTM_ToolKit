@@ -264,7 +264,7 @@ class AesculapUtils:
             initial_data = [
                 [
                     index + 1,  # Index of the code
-                    Color.wrap_text(code, Color.CYAN, keywords, whole=True),  # Highlight and colorize Code
+                    Color.wrap_text(code, Color.CYAN, whole=True),  # Highlight and colorize Code
                     Color.wrap_text(description, Color.GREEN, keywords),  # Highlight and colorize Description
                     Color.wrap_text(alternative, Color.YELLOW, None, True)  # Colorize the Alternative
                 ]
