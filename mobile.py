@@ -39,7 +39,7 @@ search_terms = [
     "world history", "coffee brewing", "quantum physics", "digital marketing", "sustainable fashion"
 ]
 
-def setup_driver(user_data_dir=None, profile_dir=None, headless=False):
+def setup_driver(user_data_dir=None, profile_dir=None):
     """Configure and return the WebDriver with specified options"""
     mobile_emulation = {"deviceName": "Pixel 2"}
     chrome_options = Options()
@@ -48,9 +48,8 @@ def setup_driver(user_data_dir=None, profile_dir=None, headless=False):
     if user_data_dir and profile_dir:
         chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
         chrome_options.add_argument(f"--profile-directory={profile_dir}")
+        logger.info("Running with user profile loaded.")
     
-    if headless:
-        chrome_options.add_argument("--headless=new")
     
     # Add some randomization to appear more human-like
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
@@ -194,7 +193,7 @@ def main():
     logger.info(f"Configured to perform {args.searches} searches with delays between {args.min_delay}-{args.max_delay} seconds")
     
     try:
-        driver = setup_driver(args.user_data_dir, args.profile_dir, args.headless)
+        driver = setup_driver(args.user_data_dir, args.profile_dir)
         successful_searches = perform_searches(
             driver, 
             num_searches=args.searches, 
