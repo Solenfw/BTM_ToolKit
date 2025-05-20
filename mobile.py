@@ -10,6 +10,9 @@ import time
 import random
 import logging
 import argparse
+import subprocess
+import platform
+import os
 from datetime import datetime
 
 # Set up logging
@@ -39,33 +42,67 @@ search_terms = [
     "world history", "coffee brewing", "quantum physics", "digital marketing", "sustainable fashion"
 ]
 
-def setup_driver(user_data_dir=None, profile_dir=None):
-    """Configure and return the WebDriver with specified options"""
-    mobile_emulation = {"deviceName": "Pixel 2"}
+def setup_driver(headless=False):
+    """Configure and return the Chrome WebDriver with mobile emulation"""
+    
+    # Kill any running Chrome processes to prevent conflicts
+    if platform.system() == "Windows":
+        try:
+            subprocess.run(["taskkill", "/f", "/im", "chrome.exe"], capture_output=True)
+            logger.info("Killed existing Chrome processes")
+            time.sleep(2)  # Give time for processes to fully terminate
+        except Exception as e:
+            logger.warning(f"Failed to kill Chrome processes: {e}")
+    
+    # Setup Chrome options following the same pattern as the working Edge setup
     chrome_options = Options()
+    
+    # Set headless mode if specified
+    if headless:
+        chrome_options.add_argument("--headless=new")
+
+    # Mobile emulation is the key difference from your Edge setup
+    mobile_emulation = {"deviceName": "Pixel 2"}
     chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
     
-    if user_data_dir and profile_dir:
-        chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-        chrome_options.add_argument(f"--profile-directory={profile_dir}")
-        logger.info("Running with user profile loaded.")
-    
-    
-    # Add some randomization to appear more human-like
+    # Anti-detection settings (same as your working Edge code)
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     
+    # Basic stability settings without any profile-related args
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--window-size=420,740")
+    
     try:
+        logger.info("Launching Chrome with mobile emulation")
         driver = webdriver.Chrome(options=chrome_options)
-        # Set a random user agent
-        driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+        
+        # Set mobile user agent (similar to how you set the Edge user agent)
+        driver.execute_cdp_cmd("Network.setUserAgentOverride", {
             "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
         })
+        logger.info("Successfully set mobile user agent")
+        
+        # Navigate to Bing to pre-load it
+        driver.get("https://www.bing.com/")
+        logger.info("Navigated to Bing")
+        
+        # Check if we need to login
+        time.sleep(2)
+        if "Sign in" in driver.page_source or "Login" in driver.page_source:
+            logger.info("Not logged in. Navigating to Microsoft login page.")
+            driver.get("https://login.live.com/")
+            input("Please sign in to your Microsoft account and press Enter when done...")
+        else:
+            logger.info("Already signed in to Microsoft account")
+        
         return driver
     except Exception as e:
         logger.error(f"Failed to initialize WebDriver: {e}")
         raise
+
 
 def perform_searches(driver, num_searches=30, delay_min=5, delay_max=12):
     """Perform the specified number of searches with randomized behavior"""
@@ -182,8 +219,8 @@ def main():
     parser.add_argument("--searches", type=int, default=30, help="Number of searches to perform")
     parser.add_argument("--min-delay", type=float, default=5, help="Minimum delay between searches (seconds)")
     parser.add_argument("--max-delay", type=float, default=12, help="Maximum delay between searches (seconds)")
-    parser.add_argument("--user-data-dir", type=str, help="Chrome user data directory")
-    parser.add_argument("--profile-dir", type=str, default="Default", help="Chrome profile directory")
+    # parser.add_argument("--user-data-dir", help="Chrome user data directory")
+    # parser.add_argument("--profile-dir", type=str, default="Default", help="Chrome profile directory")
     parser.add_argument("--headless", action="store_true", help="Run in headless mode")
     
     args = parser.parse_args()
@@ -193,7 +230,7 @@ def main():
     logger.info(f"Configured to perform {args.searches} searches with delays between {args.min_delay}-{args.max_delay} seconds")
     
     try:
-        driver = setup_driver(args.user_data_dir, args.profile_dir)
+        driver = setup_driver(args.headless)
         successful_searches = perform_searches(
             driver, 
             num_searches=args.searches, 
