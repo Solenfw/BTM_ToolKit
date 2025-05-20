@@ -42,6 +42,102 @@ search_terms = [
     "world history", "coffee brewing", "quantum physics", "digital marketing", "sustainable fashion"
 ]
 
+def setup_driver_with_cookies(user_data_dir=None, profile_dir=None):
+    """Advanced setup that uses cookies to maintain login state"""
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    import os
+    import time
+    import platform
+    import subprocess
+    import pickle
+    import pathlib
+    
+    # Define cookie path
+    cookie_file = pathlib.Path("ms_cookies.pkl")
+    
+    # Kill any running Chrome processes
+    if platform.system() == "Windows":
+        try:
+            subprocess.run(["taskkill", "/f", "/im", "chrome.exe"], capture_output=True)
+            logger.info("Killed existing Chrome processes")
+            time.sleep(2)
+        except Exception as e:
+            logger.warning(f"Failed to kill Chrome processes: {e}")
+    
+    # Setup Chrome options similar to your working Edge setup
+    chrome_options = Options()
+    
+    # Mobile emulation
+    mobile_emulation = {"deviceName": "Pixel 2"}
+    chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+    
+    # Anti-detection settings (same as your Edge code)
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    
+    # Basic stability settings
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--window-size=420,740")
+    
+    try:
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.set_page_load_timeout(30)
+        
+        # Set mobile user agent
+        driver.execute_cdp_cmd("Network.setUserAgentOverride", {
+            "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+        })
+        
+        # Try to load cookies if they exist
+        if cookie_file.exists():
+            # First go to the domain
+            driver.get("https://www.bing.com")
+            try:
+                cookies = pickle.load(open(cookie_file, "rb"))
+                for cookie in cookies:
+                    # Handle secure cookie issues
+                    if 'sameSite' in cookie and cookie['sameSite'] == 'None':
+                        cookie['sameSite'] = 'Strict'
+                    # Skip expired cookies
+                    if 'expiry' in cookie and cookie['expiry'] < time.time():
+                        continue
+                    try:
+                        driver.add_cookie(cookie)
+                    except Exception as e:
+                        logger.warning(f"Couldn't add cookie {cookie.get('name')}: {e}")
+                logger.info("Cookies loaded successfully")
+                # Refresh to apply cookies
+                driver.refresh()
+                time.sleep(2)
+            except Exception as e:
+                logger.warning(f"Error loading cookies: {e}")
+        
+        # Check login status
+        driver.get("https://www.bing.com/")
+        time.sleep(3)
+        
+        # Check if we need to login
+        if "Sign in" in driver.page_source or not cookie_file.exists():
+            logger.info("Need to login. Opening Microsoft login page...")
+            driver.get("https://login.live.com/")
+            input("Please sign in to your Microsoft account and press Enter when done...")
+            
+            # Save cookies for future use
+            driver.get("https://www.bing.com")
+            time.sleep(2)
+            pickle.dump(driver.get_cookies(), open(cookie_file, "wb"))
+            logger.info(f"Saved cookies to {cookie_file}")
+        else:
+            logger.info("Already logged in with cookies")
+        
+        return driver
+    except Exception as e:
+        logger.error(f"Failed to initialize WebDriver: {e}")
+        raise
+
 def setup_driver(headless=False):
     """Configure and return the Chrome WebDriver with mobile emulation"""
     
