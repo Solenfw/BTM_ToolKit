@@ -11,11 +11,10 @@ os.system("")
 from BTM_Quote_Tool import load_config, string_cleaner, AesculapUtils, IntegraUtils, KLSUtils, Color, SupportUtils
 
 
-# Determine the correct base directory
 if getattr(sys, 'frozen', False):  
-    base_dir = sys._MEIPASS  # PyInstaller extracted folder
+    base_dir = sys._MEIPASS  
 else:
-    base_dir = os.path.abspath(os.path.dirname(__file__))  # Normal script path
+    base_dir = os.path.abspath(os.path.dirname(__file__))  
 
 # Path to config.json (already correct)
 config_path = os.path.join(base_dir, "config.json")
@@ -23,12 +22,10 @@ config_path = os.path.join(base_dir, "config.json")
 # Load JSON config
 config = load_config(config_path)
 
-# 🔥 Fix: Convert relative paths from config.json to absolute paths
 def get_absolute_path(relative_path):
     """Convert relative paths from config.json into absolute paths."""
     return os.path.join(base_dir, relative_path.strip(" ./\\"))  # Strip unnecessary `.` or `..`
 
-# 🔹 Use the helper function to fix all paths
 MartinSourceFile = Path(config['csv_source']['kls_product_csv'])
 AesculapSourceFile = Path(config['csv_source']['aesculap_product_csv'])
 IntegraSourceFile = Path(config['csv_source']['integra_product_csv'])
