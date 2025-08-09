@@ -108,6 +108,3 @@ log/
 
 # Docker files (if applicable)
 docker-compose.override.yml
-
-# README file
-README.md
