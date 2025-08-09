@@ -4,20 +4,20 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# local .py files
-exe.py
-data_lookup.py
-GUI_.py
+# irrelevant local files for running
+errand.py
 
 # irrelevant packages
 package-lock.json
 package.json
+errandConfig.json
 node_modules/
 
 # .txt files (for output storage)
-myscripts/
-tests/
-.*.txt
+*.txt
+src/*.txt
+!requirements.txt
+!data/source_text/*.txt
 
 # C extensions
 *.so
