@@ -12,10 +12,11 @@ from BTM_Quote_Tool.cui.click_dispatcher import cli
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
 else:
-    base_dir = os.path.abspath(os.path.dirname(__file__))
+    # When unfrozen, main.py is in src/, so go up one level to get to project root
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Path to config.json (already correct)
-config_path = os.path.join(base_dir, "config.json")
+config_path = os.path.join(base_dir, "src", "config.json")
 
 # Load JSON config
 config = load_config(config_path)

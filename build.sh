@@ -15,6 +15,7 @@ pyinstaller --name BTM_Quote_Tool \
             --windowed \
             --add-data "data:data" \
             --add-data "src/config.json:." \
+            --collect-all python \
             src/main.py
 
 # Deactivate the virtual environment

@@ -202,8 +202,9 @@ class SupportUtils:
 
     @staticmethod
     def all_keys_exist(keys: list, check_string: str) -> bool:
-        """Returns True if all keys exist in the check string."""
-        return all(key in check_string for key in keys)
+        """Returns True if all keys exist in the check string (case-insensitive)."""
+        check_string_lower = check_string.lower()
+        return all(key.lower() in check_string_lower for key in keys)
 
 
     @staticmethod
@@ -221,6 +222,24 @@ class SupportUtils:
             console.print(f"Old code replaced.")
         except Exception as err:
             console.print(f"ERROR : {err}")
+
+    @staticmethod
+    def highlight_text(text: str, keywords: list[str], color: str = "yellow") -> str:
+        """Highlights keywords in a given text using rich formatting."""
+        if not keywords:
+            return text
+        
+        highlighted_text = text
+        for keyword in keywords:
+            # Use regex to find and replace all occurrences of the keyword, case-insensitive
+            # Wrap the matched keyword with rich color tags
+            highlighted_text = regex.sub(
+                f"({regex.escape(keyword)})",
+                f"[{color}]\g<1>[/{color}]",
+                highlighted_text,
+                flags=regex.IGNORECASE
+            )
+        return highlighted_text
 
 
 class AesculapUtils:
@@ -247,7 +266,7 @@ class AesculapUtils:
     def search(self, keyword: str, dataset: dict):
         try:
             temporary = {}
-            keyword_list = keyword.split()
+            keyword_list = keyword.lower().split()
             for code, (descript, alternative) in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, descript):
                     temporary[code] = (descript, alternative)
@@ -266,7 +285,9 @@ class AesculapUtils:
             table.add_column("Alternative", style="yellow")
 
             for index, (code, (description, alternative)) in enumerate(tempo.items()):
-                table.add_row(str(index + 1), code, description, alternative)
+                highlighted_description = SupportUtils.highlight_text(description, keywords)
+                highlighted_alternative = SupportUtils.highlight_text(alternative, keywords)
+                table.add_row(str(index + 1), code, highlighted_description, highlighted_alternative)
 
             console.print(table)
         except Exception as e:
@@ -296,7 +317,8 @@ class IntegraUtils:
             keyword_list = keyword.strip().lower().split()
             for code, description in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, description):
-                    console.print(f"[magenta]{code}[/magenta]\t{description}")
+                    highlighted_description = SupportUtils.highlight_text(description, keyword_list)
+                    console.print(f"[magenta]{code}[/magenta]	{highlighted_description}")
         except Exception as e:
             console.print(f"Error searching Integra data: {e}")
 
@@ -332,7 +354,9 @@ class KLSUtils:
             table.add_column("Code", style="yellow")
 
             for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items()):
-                table.add_row(str(index + 1), vn_descript, eng_descript, code)
+                highlighted_vn_descript = SupportUtils.highlight_text(vn_descript, keywords)
+                highlighted_eng_descript = SupportUtils.highlight_text(eng_descript, keywords)
+                table.add_row(str(index + 1), highlighted_vn_descript, highlighted_eng_descript, code)
             
             console.print(table)
             return [[index + 1, vn_descript, eng_descript, code] for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items())]

@@ -46,7 +46,10 @@ def interactive(ctx):
             cmd = cli.get_command(ctx, command)
             if cmd:
                 if cmd.params:
-                    ctx.invoke(cmd, *args)
+                    if args:
+                        ctx.invoke(cmd, keyword=args[0])
+                    else:
+                        ctx.invoke(cmd)
                 else:
                     ctx.invoke(cmd)
             else:
