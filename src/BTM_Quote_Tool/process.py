@@ -2,76 +2,74 @@ import regex
 import csv
 import os
 from pathlib import Path
-from tabulate import tabulate
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
 from .string_utilities import string_cleaner
 
-
-class Color:
-    CYAN = '\033[1;96m'
-    YELLOW = '\033[1;33m'
-    MAGENTA = '\033[1;35m'
-    RED = '\033[1;31m'
-    END = '\033[0m'
-    GREEN = '\033[1;92m'
-    WHITE = '\033[37m'
-
-    @staticmethod
-    def wrap_text(text_input, color_code, keywords=None, whole=False):
-        # Ensure text_input is a string, as highlight might return non-string if not careful
-        text = str(text_input)
-
-        if whole:
-            return f"{color_code}{text}{Color.END}"
-
-        if keywords and isinstance(keywords, list) and len(keywords) > 0:
-            processed_text = text
-            for keyword in keywords:
-                if not keyword:  # Skip empty keywords
-                    continue
-                # Escape keyword for regex to treat special characters literally
-                # Use regex.IGNORECASE for case-insensitive matching
-                # Apply color_code ONLY to the matched keyword
-                processed_text = regex.sub(
-                    rf'({regex.escape(str(keyword))})',
-                    lambda match: f"{color_code}{match.group(1)}{Color.END}",
-                    processed_text,
-                    flags=regex.IGNORECASE  # Add case-insensitivity
-                )
-            return processed_text # Return text with only keywords colored
-        else:
-            # This is the original Path C: if no keywords, color non-digit/dot/space sequences.
-            # You might want to reconsider if this is the desired fallback.
-            # If text should remain uncolored if no keywords, then just 'return text'
-            return regex.sub(r'([^\d\.\s]+)', lambda match: f"{color_code}{match.group(0)}{Color.END}", text)
-
-    @staticmethod
-    def highlight(text: str) -> str:
-        """Highlights numbers in MAGENTA within the text."""
-        # Ensure text is a string
-        text_str = str(text)
-        return regex.sub(r'(\d+(\.\d+)?)', lambda match: f"{Color.MAGENTA}{match.group(1)}{Color.END}", text_str)
-
+console = Console()
 
 class SupportUtils:
 
     @staticmethod
     def help():
-        print(
-            "\nCommands:\n"
-            "1. 'end' to terminate the program.\n"
-            "2. 'code' to display selected codes.\n"
-            "3. 'clear code' to clear selected codes.\n"
-            "4. 'open code' to open selected codes file.\n"
-            "5. 'clear rf' to clear reference file.\n"
-            "6. 'open rf' to open reference file.\n"
-            "7. 'replace' to replace a code.\n"
-            "8. 'load' to save a code.\n"
-            "9. put 'sculap' at the end to search for Aesculap code.\n"
-            "10. put 'integra' at the end to search for Integra code.\n"
-            "11. put 'inch' at the end to convert cm to inch.\n"
-            "12. put 'refresh' to reload the data.\n"
-            "13. put 'help' to display this message."
-        )
+        """Displays a user-friendly help message with command descriptions and examples."""
+
+        console.print(Panel(
+            "[bold cyan]Welcome to the BTM Quote Tool![/bold cyan]\n\nThis tool helps you search for medical products and manage quotes.",
+            title="[bold green]BTM Quote Tool Manual[/bold green]",
+            expand=False
+        ))
+
+        # General Commands Table
+        general_table = Table(title="[bold]General Commands[/bold]", show_header=True, header_style="bold magenta")
+        general_table.add_column("Command", style="dim", width=15)
+        general_table.add_column("Description", style="bright_blue")
+        general_table.add_column("Example", style="yellow")
+
+        general_table.add_row("help", "Displays this help message.", "help")
+        general_table.add_row("end", "Terminates the program.", "end")
+        general_table.add_row("clear", "Clears the console screen.", "clear")
+        general_table.add_row("refresh", "Reloads the product data from source files.", "refresh")
+
+        console.print(general_table)
+
+        # Search Commands Table
+        search_table = Table(title="[bold]Search Commands[/bold]", show_header=True, header_style="bold magenta")
+        search_table.add_column("Command", style="dim", width=15)
+        search_table.add_column("Description", style="bright_blue")
+        search_table.add_column("Example", style="yellow")
+
+        search_table.add_row("search [keyword]", "Searches for a product by keyword.", "search screw")
+        search_table.add_row("sculap [keyword]", "Searches for an Aesculap product.", "sculap instrument")
+        search_table.add_row("integra [keyword]", "Searches for an Integra product.", "integra forceps")
+        search_table.add_row("search_by_code [code]", "Searches for a product by its exact code.", "search_by_code 12-345-67-89")
+
+        console.print(search_table)
+
+        # Quote Management Commands Table
+        quote_table = Table(title="[bold]Quote Management Commands[/bold]", show_header=True, header_style="bold magenta")
+        quote_table.add_column("Command", style="dim", width=15)
+        quote_table.add_column("Description", style="bright_blue")
+        quote_table.add_column("Example", style="yellow")
+
+        quote_table.add_row("load [code]", "Saves a product code to your selection.", "load 12-345-67-89")
+        quote_table.add_row("pick [index]", "Picks a product from the search results by its index.", "pick 3")
+        quote_table.add_row("check", "Displays all selected product codes.", "check")
+        quote_table.add_row("replace [old_code] [new_code]", "Replaces a code in your selection.", "replace 12-345-67-89 98-765-43-21")
+
+        console.print(quote_table)
+
+        # Utility Commands Table
+        utility_table = Table(title="[bold]Utility Commands[/bold]", show_header=True, header_style="bold magenta")
+        utility_table.add_column("Command", style="dim", width=15)
+        utility_table.add_column("Description", style="bright_blue")
+        utility_table.add_column("Example", style="yellow")
+
+        utility_table.add_row("inch [value]", "Converts a value from centimeters to inches.", "inch 10")
+        utility_table.add_row("reference", "Shows the reference file content.", "reference")
+
+        console.print(utility_table)
 
 
     @staticmethod
@@ -85,7 +83,7 @@ class SupportUtils:
             with open(selected_code_file, 'a', encoding='utf-8') as file:
                     file.write(code + "\n")
         except Exception as err:
-            print(f"ERROR : {err}")
+            console.print(f"ERROR : {err}")
     
 
     @staticmethod
@@ -101,11 +99,11 @@ class SupportUtils:
                     code = regex.search(r'\d{2}-\d{3}-\d{2}-\d{2}', code).group(0)
                     file.write(code + "\n")
         except ValueError as err:
-            print(f"ERROR : {err}. Please enter a valid number.")
+            console.print(f"ERROR : {err}. Please enter a valid number.")
         except IndexError as err:
-            print(f"ERROR : {err}. Please enter a number between 1 and {len(dataset)}.")
+            console.print(f"ERROR : {err}. Please enter a number between 1 and {len(dataset)}.")
         except Exception as err:
-            print(f"ERROR : {err}")
+            console.print(f"ERROR : {err}")
 
 
     @staticmethod
@@ -116,7 +114,7 @@ class SupportUtils:
             # clear file content
             if mode == 'clear code':
                 with open(selected_code_file, 'w', encoding='utf-8') as file:
-                    print("FILE cleared.")
+                    console.print("FILE cleared.")
                 return
             
             # open file in notepad
@@ -134,7 +132,7 @@ class SupportUtils:
 
             # Handle empty file
             if not codes:
-                print("File Empty!")
+                console.print("File Empty!")
                 return
 
             # Display codes
@@ -143,12 +141,12 @@ class SupportUtils:
                     (vietnamese for vietnamese, (_, original_code) in data.items() if original_code == code), "None"
                 )
                 if matching_item:
-                    print(f"{index} _ {Color.wrap_text(code, Color.YELLOW)} _ {Color.wrap_text(matching_item, Color.WHITE)}")
+                    console.print(f"{index} _ [yellow]{code}[/yellow] _ [white]{matching_item}[/white]")
                 else:
-                    print(f"{index} _ {code}")
+                    console.print(f"{index} _ {code}")
 
         except FileNotFoundError as err:
-            print(f"ERROR: {err}")
+            console.print(f"ERROR: {err}")
 
 
     @staticmethod
@@ -160,7 +158,7 @@ class SupportUtils:
             # Clear reference file content
             if mode == 'clear rf':
                 with open(reference_file, 'w', encoding='utf-8') as file:
-                    print("Reference cleared.")
+                    console.print("Reference cleared.")
                 return
 
             # Open reference file in notepad
@@ -183,29 +181,30 @@ class SupportUtils:
 
             # Handle empty reference file
             if not lines:
-                command = input("File is empty! Fill it up? (y): ").strip()
+                command = console.input("File is empty! Fill it up? (y): ").strip()
                 if command == 'y':
-                    print("Opening reference file for editing...")
+                    console.print("Opening reference file for editing...")
                     os.system("notepad ./reference.txt")
                 return
 
             # Display relevant information
             if current_prd == 0:
-                print(f"First item: {lines[0]}")
+                console.print(f"First item: {lines[0]}")
             elif current_prd < len(lines):
-                print(f"{current_prd} _ {lines[current_prd - 1]} - {codes_avail[current_prd - 1]}")
-                print(f"Next: {current_prd + 1} _ {lines[current_prd]}")
+                console.print(f"{current_prd} _ {lines[current_prd - 1]} - {codes_avail[current_prd - 1]}")
+                console.print(f"Next: {current_prd + 1} _ {lines[current_prd]}")
             else:
-                print("All references have been used. Open reference file for more information.")
+                console.print("All references have been used. Open reference file for more information.")
 
         except FileNotFoundError as err:
-            print(f"ERROR: {err}")
+            console.print(f"ERROR: {err}")
 
 
     @staticmethod
     def all_keys_exist(keys: list, check_string: str) -> bool:
-        """Returns True if all keys exist in the check string."""
-        return all(key in check_string for key in keys)
+        """Returns True if all keys exist in the check string (case-insensitive)."""
+        check_string_lower = check_string.lower()
+        return all(key.lower() in check_string_lower for key in keys)
 
 
     @staticmethod
@@ -220,9 +219,27 @@ class SupportUtils:
             ]
             with open(selected_code_file, 'w', encoding='utf-8') as file:
                 file.writelines(updated_codes)
-            print(f"Old code replaced.")
+            console.print(f"Old code replaced.")
         except Exception as err:
-            print(f"ERROR : {err}")
+            console.print(f"ERROR : {err}")
+
+    @staticmethod
+    def highlight_text(text: str, keywords: list[str], color: str = "yellow") -> str:
+        """Highlights keywords in a given text using rich formatting."""
+        if not keywords:
+            return text
+        
+        highlighted_text = text
+        for keyword in keywords:
+            # Use regex to find and replace all occurrences of the keyword, case-insensitive
+            # Wrap the matched keyword with rich color tags
+            highlighted_text = regex.sub(
+                f"({regex.escape(keyword)})",
+                f"[{color}]\g<1>[/{color}]",
+                highlighted_text,
+                flags=regex.IGNORECASE
+            )
+        return highlighted_text
 
 
 class AesculapUtils:
@@ -242,39 +259,39 @@ class AesculapUtils:
                     self.dataset[code] = (description, alternative)
             return self.dataset
         except Exception as e:
-            print(f"Error processing Aesculap data: {e}")
+            console.print(f"Error processing Aesculap data: {e}")
 
 
     
     def search(self, keyword: str, dataset: dict):
         try:
             temporary = {}
-            keyword_list = keyword.split()
+            keyword_list = keyword.lower().split()
             for code, (descript, alternative) in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, descript):
                     temporary[code] = (descript, alternative)
             return temporary
         except Exception as e:
-            print(f"Error searching Aesculap data: {e}")
+            console.print(f"Error searching Aesculap data: {e}")
     
 
     @staticmethod
     def display(tempo : dict[str, tuple[str, str]], keywords: list[str] = None):
         try:
-            initial_data = [
-                [
-                    index + 1,  # Index of the code
-                    Color.wrap_text(code, Color.CYAN, whole=True),  # Highlight and colorize Code
-                    Color.wrap_text(description, Color.GREEN, keywords),  # Highlight and colorize Description
-                    Color.wrap_text(alternative, Color.YELLOW, None, True)  # Colorize the Alternative
-                ]
-                for index, (code, (description, alternative)) in enumerate(tempo.items())
-            ]
-            # Define the headers for the table
-            headers = ['Idx','Code', 'Description', 'Alternative']
-            print(tabulate(initial_data, headers=headers, tablefmt="fancy_grid"))
+            table = Table(title="Aesculap Products")
+            table.add_column("Idx", justify="right", style="cyan", no_wrap=True)
+            table.add_column("Code", style="magenta")
+            table.add_column("Description", style="green")
+            table.add_column("Alternative", style="yellow")
+
+            for index, (code, (description, alternative)) in enumerate(tempo.items()):
+                highlighted_description = SupportUtils.highlight_text(description, keywords)
+                highlighted_alternative = SupportUtils.highlight_text(alternative, keywords)
+                table.add_row(str(index + 1), code, highlighted_description, highlighted_alternative)
+
+            console.print(table)
         except Exception as e:
-            print(f"Error displaying Aesculap data: {e}")
+            console.print(f"Error displaying Aesculap data: {e}")
         
 
 class IntegraUtils:
@@ -291,7 +308,7 @@ class IntegraUtils:
                     description = regex.sub(r',', ' ', str(row[1]).strip().lower())
                     self.dataset[code] = description
         except Exception as e:
-            print(f"Error processing Integra data: {e}")
+            console.print(f"Error processing Integra data: {e}")
         return self.dataset
 
 
@@ -300,9 +317,10 @@ class IntegraUtils:
             keyword_list = keyword.strip().lower().split()
             for code, description in dataset.items():
                 if SupportUtils.all_keys_exist(keyword_list, description):
-                    print(f"{Color.wrap_text(code, Color.CYAN, None, True)}\t{Color.highlight(description)}")
+                    highlighted_description = SupportUtils.highlight_text(description, keyword_list)
+                    console.print(f"[magenta]{code}[/magenta]	{highlighted_description}")
         except Exception as e:
-            print(f"Error searching Integra data: {e}")
+            console.print(f"Error searching Integra data: {e}")
 
 
 class KLSUtils:
@@ -323,33 +341,33 @@ class KLSUtils:
                     self.dataset[code] = (eng_descript, vn_descript)
             return self.dataset
         except Exception as e:
-            print(f"Error processing KLS data: {e}")
+            console.print(f"Error processing KLS data: {e}")
 
 
     @staticmethod
     def display(temporary: dict, keywords: list[str] = None):
         try:
-            initial_data = [
-                 [
-                    index + 1,  # Index of the code
-                    Color.wrap_text(vn_descript, Color.GREEN, keywords),  # Highlight and colorize Vietnamese Description
-                    Color.wrap_text(eng_descript, Color.CYAN, keywords),  # Highlight and colorize English Description
-                    Color.wrap_text(code, Color.YELLOW, keywords, whole=True)  # Colorize the Code
-                ]
-                for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items())
-            ]
+            table = Table(title="KLS Products")
+            table.add_column("Idx", justify="right", style="cyan", no_wrap=True)
+            table.add_column("Vietnamese Description", style="green")
+            table.add_column("English Description", style="cyan")
+            table.add_column("Code", style="yellow")
+
+            for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items()):
+                highlighted_vn_descript = SupportUtils.highlight_text(vn_descript, keywords)
+                highlighted_eng_descript = SupportUtils.highlight_text(eng_descript, keywords)
+                table.add_row(str(index + 1), highlighted_vn_descript, highlighted_eng_descript, code)
             
-            headers = ['Idx',"Vietnamese Description", "English Description", "Code"]
-            print(tabulate(initial_data, headers=headers, tablefmt="fancy_grid"))
-            return initial_data
+            console.print(table)
+            return [[index + 1, vn_descript, eng_descript, code] for index, (code, (eng_descript, vn_descript)) in enumerate(temporary.items())]
         except Exception as e:
-            print(f"Error displaying KLS data: {e}")
+            console.print(f"Error displaying KLS data: {e}")
 
 
     def SearchByCode(self, keyword: str, AesculapDataset: dict):
         try:
             if not self.dataset:
-                print("The dataset is empty. Please process data before searching.")
+                console.print("The dataset is empty. Please process data before searching.")
                 return
             
             temporary = {}
@@ -363,13 +381,13 @@ class KLSUtils:
                     # Search for alternatives in AesculapDataset
                     for aesculap_code, information in AesculapDataset.items():
                         if len(information) > 1 and information[1].lower() == keyword:
-                            print(f"Alternative AESCULAP code: {Color.wrap_text(aesculap_code, Color.YELLOW, None, True)}")
+                            console.print(f"Alternative AESCULAP code: [yellow]{aesculap_code}[/yellow]")
                             break  # Exit the loop early when a match is found
             
             # Display results or notify if no matches
-            self.display(temporary, keywords=[keyword]) if temporary else print("No matching code found.")
+            self.display(temporary, keywords=[keyword]) if temporary else console.print("No matching code found.")
         except Exception as e:
-            print(f"Error searching KLS data: {e}")
+            console.print(f"Error searching KLS data: {e}")
 
 
     def search(self, keyword: str) -> dict:
@@ -383,4 +401,4 @@ class KLSUtils:
                     matching_products[code] = info
             return matching_products
         except Exception as e:
-            print(f"Error searching KLS data: {e}")        
+            console.print(f"Error searching KLS data: {e}")        
