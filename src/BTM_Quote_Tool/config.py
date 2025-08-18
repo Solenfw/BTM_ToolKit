@@ -3,10 +3,9 @@ import logging
 from logging import Logger
 import os
 from pathlib import Path
-import csv
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
-from .string_utilities import string_cleaner
+
 
 def load_config(config_file=""):
     """Loads PATH configuration from a JSON file."""
