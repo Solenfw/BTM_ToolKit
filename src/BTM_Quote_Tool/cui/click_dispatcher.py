@@ -26,11 +26,19 @@ def cli(ctx):
 @click.pass_context
 def interactive(ctx):
     """Interactive mode."""
-    command_completer = WordCompleter(list(cli.commands.keys()))
     history = FileHistory('history.txt')
 
     while True:
         try:
+            try:
+                with open('history.txt', 'r') as f:
+                    history_words = [line.strip().replace('+', '') for line in f if line.strip()]
+            except FileNotFoundError:
+                history_words = []
+
+            all_commands = set(cli.commands.keys()) | set(history_words)
+            command_completer = WordCompleter(list(all_commands), ignore_case=True)
+
             command_with_args = prompt(
                 "> ",
                 history=history,
@@ -47,7 +55,7 @@ def interactive(ctx):
             if cmd:
                 if cmd.params:
                     if args:
-                        ctx.invoke(cmd, keyword=args[0])
+                        ctx.invoke(cmd, keyword=args[0] if len(args) > 0 else None)
                     else:
                         ctx.invoke(cmd)
                 else:
