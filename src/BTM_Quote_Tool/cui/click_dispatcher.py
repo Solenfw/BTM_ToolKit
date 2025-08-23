@@ -62,7 +62,8 @@ def interactive(ctx):
                     ctx.invoke(cmd)
             else:
                 # if command is not a click command, assume it is a search keyword
-                ctx.invoke(search, keyword=command)
+                keywords = ' '.join(command_with_args)
+                ctx.invoke(search, keyword=keywords)
 
         except (KeyboardInterrupt, EOFError):
             break

@@ -1,6 +1,8 @@
 import regex
 import csv
 import os
+import subprocess
+import shlex
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
@@ -40,7 +42,6 @@ class SupportUtils:
         search_table.add_column("Description", style="bright_blue")
         search_table.add_column("Example", style="yellow")
 
-        search_table.add_row("search [keyword]", "Searches for a product by keyword.", "search screw")
         search_table.add_row("sculap [keyword]", "Searches for an Aesculap product.", "sculap instrument")
         search_table.add_row("integra [keyword]", "Searches for an Integra product.", "integra forceps")
         search_table.add_row("search_by_code [code]", "Searches for a product by its exact code.", "search_by_code 12-345-67-89")
@@ -117,9 +118,10 @@ class SupportUtils:
                     console.print("FILE cleared.")
                 return
             
-            # open file in notepad
+            # open file in notepad (micro for linux)
             if mode == "open code":
-                os.system("notepad ./selected_code.txt")
+                cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
+                subprocess.run(shlex.split(cmd))
                 return
 
             # Ensure file exists
@@ -161,9 +163,10 @@ class SupportUtils:
                     console.print("Reference cleared.")
                 return
 
-            # Open reference file in notepad
+            # Open reference file in notepad (micro for linux)
             if mode == 'open rf':
-                os.system("notepad ./reference.txt")
+                cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
+                subprocess.run(shlex.split(cmd))
                 return
 
             # Ensure both files exist
@@ -184,7 +187,9 @@ class SupportUtils:
                 command = console.input("File is empty! Fill it up? (y): ").strip()
                 if command == 'y':
                     console.print("Opening reference file for editing...")
-                    os.system("notepad ./reference.txt")
+                    
+                    cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
+                    subprocess.run(shlex.split(cmd))
                 return
 
             # Display relevant information
