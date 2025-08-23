@@ -165,7 +165,7 @@ class SupportUtils:
 
             # Open reference file in notepad (micro for linux)
             if mode == 'open rf':
-                cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
+                cmd = "notepad ./reference.txt" if os.name == 'nt' else "micro ./reference.txt"
                 subprocess.run(shlex.split(cmd))
                 return
 
@@ -188,7 +188,7 @@ class SupportUtils:
                 if command == 'y':
                     console.print("Opening reference file for editing...")
                     
-                    cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
+                    cmd = "notepad ./reference.txt" if os.name == 'nt' else "micro ./reference.txt"
                     subprocess.run(shlex.split(cmd))
                 return
 
