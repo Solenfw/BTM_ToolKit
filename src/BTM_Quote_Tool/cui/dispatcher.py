@@ -23,17 +23,17 @@ class CommandDispatcher:
             self.command_handler.handle_reference(keyword)
         elif keyword.endswith('code'):
             self.command_handler.handle_check(keyword)
-        elif keyword.endswith('inch'):
+        elif keyword.startswith('inch'):
             self.command_handler.handle_inch(keyword)
-        elif keyword.endswith('replace'):
+        elif keyword.startswith('replace'):
             self.command_handler.handle_replace(keyword)
-        elif keyword.endswith('load'):
+        elif keyword.startswith('load'):
             self.command_handler.handle_load(keyword)
-        elif keyword.endswith('get'):
+        elif keyword.startswith('get'):
             self.command_handler.handle_pick(keyword)
-        elif keyword.endswith('sculap'):
+        elif keyword.startswith('sculap'):
             self.command_handler.handle_sculap(keyword)
-        elif keyword.endswith('integra'):
+        elif keyword.startswith('integra'):
             self.command_handler.handle_integra(keyword)
         elif regex.fullmatch(r'\d{2}-\d{3}-\d{2}-\d{2}', keyword):
             if self.command_handler.handle_search_by_code(keyword):

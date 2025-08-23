@@ -86,7 +86,7 @@ def end(ctx):
 @click.pass_context
 @click.argument('keyword')
 def reference(ctx, keyword):
-    """Handle reference."""
+    """Show reference."""
     ctx.obj['command_handler'].handle_reference(keyword)
 
 @cli.command()

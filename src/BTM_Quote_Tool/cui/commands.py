@@ -22,11 +22,11 @@ class CommandHandler:
         print("Terminating. . . ")
         sys.exit(0)
 
-    def handle_reference(self, keyword):
-        SupportUtils.reference(keyword)
+    def handle_reference(self, *args):
+        SupportUtils.reference(flags=args)
 
-    def handle_check(self, keyword):
-        SupportUtils.check(self.MartinDataset, keyword)
+    def handle_check(self, *args):
+        SupportUtils.check(self.MartinDataset, flags=args)
 
     def handle_inch(self, keyword):
         value_in_cm = int(regex.match(r'\d+', keyword).group())
@@ -43,7 +43,7 @@ class CommandHandler:
 
     def handle_load(self, keyword):
         keyword = keyword.replace('load', '').strip()
-        SupportUtils.save(keyword)
+        SupportUtils.load(keyword)
         print("Product's code has been loaded.")
     
     def handle_pick(self, keyword):

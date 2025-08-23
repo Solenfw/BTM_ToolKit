@@ -44,7 +44,7 @@ class SupportUtils:
 
         search_table.add_row("sculap [keyword]", "Searches for an Aesculap product.", "sculap instrument")
         search_table.add_row("integra [keyword]", "Searches for an Integra product.", "integra forceps")
-        search_table.add_row("search_by_code [code]", "Searches for a product by its exact code.", "search_by_code 12-345-67-89")
+        search_table.add_row("search_by_code [KLS code]", "Searches for a product by its exact code. (for Aesculap just type directly).", "search_by_code 12-345-67-89")
 
         console.print(search_table)
 
@@ -56,8 +56,8 @@ class SupportUtils:
 
         quote_table.add_row("load [code]", "Saves a product code to your selection.", "load 12-345-67-89")
         quote_table.add_row("pick [index]", "Picks a product from the search results by its index.", "pick 3")
-        quote_table.add_row("check", "Displays all selected product codes.", "check")
-        quote_table.add_row("replace [old_code] [new_code]", "Replaces a code in your selection.", "replace 12-345-67-89 98-765-43-21")
+        quote_table.add_row("check", "Displays all selected product codes. [ -c, -o flags to clear/open]", "check")
+        quote_table.add_row("reference", "Shows the reference file content. [ -c, -o flags to clear/open]", "reference")
 
         console.print(quote_table)
 
@@ -68,13 +68,13 @@ class SupportUtils:
         utility_table.add_column("Example", style="yellow")
 
         utility_table.add_row("inch [value]", "Converts a value from centimeters to inches.", "inch 10")
-        utility_table.add_row("reference", "Shows the reference file content.", "reference")
+        utility_table.add_row("replace [old_code] [new_code]", "Replaces a code in your selection.", "replace 12-345-67-89 98-765-43-21")
 
         console.print(utility_table)
 
 
     @staticmethod
-    def save(code: str):
+    def load(code: str):
         """Saves selected code to a file."""
         selected_code_file = "selected_code.txt"
         try:
@@ -108,22 +108,21 @@ class SupportUtils:
 
 
     @staticmethod
-    def check(data: dict[str, tuple[str, str]], mode: str = ''):
+    def check(data: dict[str, tuple[str, str]], flags: list[str] = None):
         """Checks the saved codes."""
         selected_code_file = "selected_code.txt"
         try:
-            # clear file content
-            if mode == 'clear code':
-                with open(selected_code_file, 'w', encoding='utf-8') as file:
-                    console.print("FILE cleared.")
+            # arguments handling
+            if '-c' in flags:
+                open(selected_code_file, 'w', encoding='utf-8').close()
+                console.print("Selected code file cleared.")
                 return
-            
-            # open file in notepad (micro for linux)
-            if mode == "open code":
+            elif '-o' in flags:
+                console.print("Opening selected code file...")
                 cmd = "notepad ./selected_code.txt" if os.name == 'nt' else "micro ./selected_code.txt"
                 subprocess.run(shlex.split(cmd))
                 return
-
+            
             # Ensure file exists
             if not os.path.exists(selected_code_file):
                 open(selected_code_file, 'w', encoding='utf-8').close()
@@ -152,23 +151,22 @@ class SupportUtils:
 
 
     @staticmethod
-    def reference(mode: str = ""):
+    def reference(flags: list[str] = None):
         reference_file = 'reference.txt'
         selected_code_file = 'selected_code.txt'
         
         try:
-            # Clear reference file content
-            if mode == 'clear rf':
-                with open(reference_file, 'w', encoding='utf-8') as file:
-                    console.print("Reference cleared.")
+            # arguments handling
+            if '-c' in flags:
+                open(reference_file, 'w', encoding='utf-8').close()
+                console.print("Reference file cleared.")
                 return
-
-            # Open reference file in notepad (micro for linux)
-            if mode == 'open rf':
+            elif '-o' in flags:
+                console.print("Opening reference file...")
                 cmd = "notepad ./reference.txt" if os.name == 'nt' else "micro ./reference.txt"
                 subprocess.run(shlex.split(cmd))
                 return
-
+            
             # Ensure both files exist
             for file_name in [reference_file, selected_code_file]:
                 if not os.path.exists(file_name):
@@ -187,7 +185,6 @@ class SupportUtils:
                 command = console.input("File is empty! Fill it up? (y): ").strip()
                 if command == 'y':
                     console.print("Opening reference file for editing...")
-                    
                     cmd = "notepad ./reference.txt" if os.name == 'nt' else "micro ./reference.txt"
                     subprocess.run(shlex.split(cmd))
                 return
@@ -203,7 +200,6 @@ class SupportUtils:
 
         except FileNotFoundError as err:
             console.print(f"ERROR: {err}")
-
 
     @staticmethod
     def all_keys_exist(keys: list, check_string: str) -> bool:
