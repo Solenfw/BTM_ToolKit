@@ -31,7 +31,7 @@ def interactive(ctx):
     while True:
         try:
             try:
-                with open('history.txt', 'r') as f:
+                with open('history.txt', 'r', encoding='UTF-8') as f:
                     history_words = [line.strip().replace('+', '') for line in f if line.strip()]
             except FileNotFoundError:
                 history_words = []
