@@ -114,7 +114,7 @@ class SupportUtils:
         try:
             # arguments handling
             if '-c' in flags:
-                open(selected_code_file, 'w', encoding='utf-8').close()
+                open(selected_code_file, 'w', encoding='utf-8').close()     
                 console.print("Selected code file cleared.")
                 return
             elif '-o' in flags:
